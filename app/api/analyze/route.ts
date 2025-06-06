@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 请开始分析：`;
 
     const completion = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1",
+      model: "deepseek/deepseek-r1-0528:free",
       messages: [
         {
           role: "system",

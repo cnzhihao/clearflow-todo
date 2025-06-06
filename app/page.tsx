@@ -115,13 +115,13 @@ export default function HomePage({ searchParams }: HomePageProps) {
   const t = translations[language]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-sky-100/50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-100/50">
       {/* Header */}
-      <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-green-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-2xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -133,7 +133,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
               <LanguageSwitcher currentLanguage={language} />
 
               <Link href="/workspace">
-                <Button className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white">
+                <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white">
                   {t.getStarted}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -146,7 +146,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
       {/* Hero Section */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge variant="secondary" className="mb-6 bg-sky-100 text-sky-700 px-4 py-2">
+          <Badge variant="secondary" className="mb-6 bg-emerald-100 text-emerald-700 px-4 py-2">
             <Sparkles className="w-4 h-4 mr-2" />
             {t.badge}
           </Badge>
@@ -156,15 +156,17 @@ export default function HomePage({ searchParams }: HomePageProps) {
             <Link href="/workspace">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-8 py-4 text-lg"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 text-lg"
               >
                 {t.getStarted}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-300 hover:bg-slate-50">
-              {t.learnMore}
-            </Button>
+            <Link href="/wiki">
+              <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-300 hover:bg-slate-50">
+                {t.learnMore}
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -180,7 +182,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-sky-400 to-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Brain className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.features.aiExtract.title}</h3>
@@ -190,7 +192,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
 
             <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Zap className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.features.smartAnalysis.title}</h3>
@@ -200,7 +202,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
 
             <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-sky-600 to-sky-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <BarChart3 className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.features.progressTracking.title}</h3>
@@ -221,7 +223,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">1</span>
               </div>
               <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.workflow.step1.title}</h3>
@@ -229,7 +231,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-sky-500 to-sky-700 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">2</span>
               </div>
               <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.workflow.step2.title}</h3>
@@ -237,7 +239,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-sky-600 to-sky-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-800 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
               <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.workflow.step3.title}</h3>
@@ -248,12 +250,12 @@ export default function HomePage({ searchParams }: HomePageProps) {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-sky-500 to-sky-600">
+      <section className="py-20 px-6 bg-gradient-to-r from-emerald-500 to-teal-600">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">{t.cta.title}</h2>
-                      <p className="text-xl text-sky-100 mb-8 leading-relaxed">{t.cta.description}</p>
+                      <p className="text-xl text-emerald-100 mb-8 leading-relaxed">{t.cta.description}</p>
           <Link href="/workspace">
-                          <Button size="lg" className="bg-white text-sky-600 hover:bg-sky-50 px-8 py-4 text-lg font-semibold">
+                          <Button size="lg" className="bg-white text-emerald-600 hover:bg-emerald-50 px-8 py-4 text-lg font-semibold">
                 {t.cta.button}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -265,7 +267,7 @@ export default function HomePage({ searchParams }: HomePageProps) {
       <footer className="py-12 px-6 bg-slate-900">
         <div className="max-w-6xl mx-auto text-center">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-xl font-semibold text-white">{t.title}</h3>
