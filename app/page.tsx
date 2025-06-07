@@ -1,108 +1,54 @@
-import Link from "next/link"
+"use client"
+
+import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import {
   Sparkles,
-  ArrowRight,
   Brain,
-  Zap,
-  BarChart3,
+  Loader2,
+  ArrowRight,
+  Lightbulb,
 } from "lucide-react"
 
 const translations = {
-      zh: {
+  zh: {
     title: "清流待办",
-    subtitle: "AI 驱动的智能任务管理",
-    description: "让 AI 帮您从复杂的想法中提取清晰的待办事项，告别繁琐的任务整理过程",
-    getStarted: "开始使用",
-    learnMore: "了解更多",
-    language: "语言",
-    badge: "AI 驱动的智能工具",
-    featuresSubtitle: "让 AI 成为您的智能助手",
-    workflowSubtitle: "三步完成智能任务管理",
-    features: {
-      title: "核心功能",
-      aiExtract: {
-        title: "智能任务提取",
-        description: "输入大段文字，AI 自动识别并提取可执行的待办任务",
-      },
-      smartAnalysis: {
-        title: "智能分析建议",
-        description: "AI 分析任务复杂度，提供分解建议和优先级排序",
-      },
-      progressTracking: {
-        title: "进度可视化",
-        description: "清晰的任务统计和完成进度，让工作状态一目了然",
-      },
+    subtitle: "描述你的想法，让AI为你规划任务",
+    placeholder: "例如：今天开会讨论了新项目，需要准备方案文档，联系设计师确认UI稿，下周一前完成原型开发...\n\n或者：\n- 明天要给客户做产品演示\n- 需要准备PPT和演示数据\n- 联系技术团队确认功能状态\n- 预约会议室\n\n输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务。",
+    analyzing: "AI正在分析中...",
+    generateTasks: "生成任务规划",
+    examples: {
+      title: "试试这些示例：",
+      meeting: "会议记录分析",
+      project: "项目规划整理", 
+      daily: "日常事务安排"
     },
-    workflow: {
-      title: "工作流程",
-      step1: {
-        title: "输入想法",
-        description: "将会议记录、灵感笔记或任何文字内容输入到系统中",
-      },
-      step2: {
-        title: "AI 分析",
-        description: "AI 智能识别文本中的任务项，并提供分解建议",
-      },
-      step3: {
-        title: "确认管理",
-        description: "审核 AI 建议，添加到待办清单并跟踪完成进度",
-      },
-    },
-    cta: {
-      title: "准备好提升您的工作效率了吗？",
-      description: "立即开始使用清流待办，体验 AI 驱动的智能任务管理",
-      button: "免费开始使用",
-    },
+    exampleTexts: {
+      meeting: "今天的产品会议确定了几个关键事项：UI设计需要在下周三前完成，后端API开发要配合前端进度，测试环境需要尽快搭建，还要安排用户访谈收集反馈。",
+      project: "新产品发布准备：完成市场调研报告，制作产品宣传视频，培训销售团队，建立客户服务流程，准备发布会演示。",
+      daily: "明天的安排：上午9点开晨会，10点半与客户电话沟通需求，下午2点参加技术评审，4点前要完成周报，晚上准备明天的演示材料。"
+    }
   },
   en: {
     title: "Clearflow To-Do",
-    subtitle: "AI-Powered Smart Task Management",
-    description: "Let AI help you extract clear to-dos from complex thoughts and eliminate tedious task organization",
-    getStarted: "Get Started",
-    learnMore: "Learn More",
-    language: "Language",
-    badge: "AI-Powered Smart Tool",
-    featuresSubtitle: "Let AI become your smart assistant",
-    workflowSubtitle: "Complete smart task management in three steps",
-    features: {
-      title: "Core Features",
-      aiExtract: {
-        title: "Smart Task Extraction",
-        description: "Input large text blocks, AI automatically identifies and extracts actionable tasks",
-      },
-      smartAnalysis: {
-        title: "Intelligent Analysis",
-        description: "AI analyzes task complexity, provides breakdown suggestions and priority sorting",
-      },
-      progressTracking: {
-        title: "Progress Visualization",
-        description: "Clear task statistics and completion progress for better work visibility",
-      },
+    subtitle: "Describe your ideas, let AI plan your tasks",
+    placeholder: "For example: Today's meeting discussed the new project, need to prepare proposal documents, contact designers to confirm UI drafts, complete prototype development by next Monday...\n\nOr:\n- Tomorrow need to demo product to client\n- Need to prepare PPT and demo data\n- Contact tech team to confirm feature status\n- Book meeting room\n\nEnter any ideas, meeting notes, project plans, and AI will help extract specific todo tasks.",
+    analyzing: "AI is analyzing...",
+    generateTasks: "Generate Task Plan",
+    examples: {
+      title: "Try these examples:",
+      meeting: "Meeting Notes Analysis",
+      project: "Project Planning",
+      daily: "Daily Task Organization"
     },
-    workflow: {
-      title: "Workflow",
-      step1: {
-        title: "Input Ideas",
-        description: "Enter meeting notes, inspiration notes, or any text content into the system",
-      },
-      step2: {
-        title: "AI Analysis",
-        description: "AI intelligently identifies tasks in text and provides breakdown suggestions",
-      },
-      step3: {
-        title: "Confirm & Manage",
-        description: "Review AI suggestions, add to todo list and track completion progress",
-      },
-    },
-    cta: {
-      title: "Ready to boost your productivity?",
-      description: "Start using Clearflow To-Do now and experience AI-driven smart task management",
-      button: "Start Free",
-    },
+    exampleTexts: {
+      meeting: "Today's product meeting determined several key items: UI design needs to be completed by next Wednesday, backend API development should coordinate with frontend progress, test environment needs to be set up ASAP, and user interviews need to be arranged to collect feedback.",
+      project: "New product launch preparation: complete market research report, create product promotional video, train sales team, establish customer service process, prepare launch demo.",
+      daily: "Tomorrow's schedule: 9am morning meeting, 10:30am phone call with client about requirements, 2pm technical review, complete weekly report by 4pm, prepare demo materials for tomorrow evening."
+    }
   },
 }
 
@@ -113,11 +59,64 @@ interface HomePageProps {
 export default function HomePage({ searchParams }: HomePageProps) {
   const language = (searchParams.lang === "en" ? "en" : "zh") as "zh" | "en"
   const t = translations[language]
+  const router = useRouter()
+  
+  const [inputText, setInputText] = useState("")
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  const handleAnalyze = async () => {
+    if (!inputText.trim()) return
+    
+    setIsAnalyzing(true)
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inputText }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze text')
+      }
+
+      // 将分析结果传递给规划页面
+      const analysisData = {
+        inputText,
+        timestamp: Date.now()
+      }
+      
+      router.push(`/planning?data=${encodeURIComponent(JSON.stringify(analysisData))}`)
+    } catch (error) {
+      console.error('Error analyzing text:', error)
+      // 即使分析失败，也跳转到规划页面，让用户手动创建任务
+      const fallbackData = {
+        inputText,
+        timestamp: Date.now(),
+        error: true
+      }
+      router.push(`/planning?data=${encodeURIComponent(JSON.stringify(fallbackData))}`)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const handleExampleClick = (exampleText: string) => {
+    setInputText(exampleText)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      handleAnalyze()
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-100/50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       {/* Header */}
-      <header className="border-b border-green-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -131,148 +130,134 @@ export default function HomePage({ searchParams }: HomePageProps) {
 
             <div className="flex items-center space-x-4">
               <LanguageSwitcher currentLanguage={language} />
-
-              <Link href="/workspace">
-                <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white">
-                  {t.getStarted}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <Badge variant="secondary" className="mb-6 bg-emerald-100 text-emerald-700 px-4 py-2">
-            <Sparkles className="w-4 h-4 mr-2" />
-            {t.badge}
-          </Badge>
-          <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-8 leading-tight">{t.subtitle}</h1>
-          <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed">{t.description}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/workspace">
+      {/* Main Content */}
+      <main className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-4xl space-y-8">
+          {/* Title */}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 leading-tight">
+              {t.subtitle}
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务
+            </p>
+          </div>
+
+          {/* Input Area */}
+          <div className="space-y-6">
+            <div className="relative">
+              <Textarea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t.placeholder}
+                className="min-h-[300px] text-lg leading-relaxed resize-none border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-2xl p-6 shadow-lg bg-white/80 backdrop-blur-sm"
+                disabled={isAnalyzing}
+              />
+              
+              {/* Character count */}
+              <div className="absolute bottom-4 right-4 text-sm text-slate-400">
+                {inputText.length} 字符
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="flex justify-center">
               <Button
+                onClick={handleAnalyze}
+                disabled={!inputText.trim() || isAnalyzing}
                 size="lg"
-                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 text-lg"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
               >
-                {t.getStarted}
-                <ArrowRight className="w-5 h-5 ml-2" />
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {t.analyzing}
+                  </>
+                ) : (
+                  <>
+                    <Brain className="w-5 h-5 mr-2" />
+                    {t.generateTasks}
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
               </Button>
-            </Link>
-            <Link href="/wiki">
-              <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-slate-300 hover:bg-slate-50">
-                {t.learnMore}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-6 bg-white/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">{t.features.title}</h2>
-            <p className="text-xl text-slate-600">{t.featuresSubtitle}</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Brain className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.features.aiExtract.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{t.features.aiExtract.description}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Zap className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.features.smartAnalysis.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{t.features.smartAnalysis.description}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <BarChart3 className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.features.progressTracking.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{t.features.progressTracking.description}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Workflow Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">{t.workflow.title}</h2>
-            <p className="text-xl text-slate-600">{t.workflowSubtitle}</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-white">1</span>
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.workflow.step1.title}</h3>
-              <p className="text-slate-600 leading-relaxed">{t.workflow.step1.description}</p>
             </div>
 
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-white">2</span>
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.workflow.step2.title}</h3>
-              <p className="text-slate-600 leading-relaxed">{t.workflow.step2.description}</p>
+            {/* Keyboard shortcut hint */}
+            <div className="text-center text-sm text-slate-500">
+              按 {navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter 快速生成
             </div>
+          </div>
 
+          {/* Examples */}
+          <div className="space-y-4">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-white">3</span>
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.workflow.step3.title}</h3>
-              <p className="text-slate-600 leading-relaxed">{t.workflow.step3.description}</p>
+              <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center justify-center gap-2">
+                <Lightbulb className="w-5 h-5 text-amber-500" />
+                {t.examples.title}
+              </h3>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4">
+              <button
+                onClick={() => handleExampleClick(t.exampleTexts.meeting)}
+                className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
+                disabled={isAnalyzing}
+              >
+                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
+                  📝 {t.examples.meeting}
+                </div>
+                <div className="text-sm text-slate-500 line-clamp-3">
+                  {t.exampleTexts.meeting.substring(0, 80)}...
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleExampleClick(t.exampleTexts.project)}
+                className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
+                disabled={isAnalyzing}
+              >
+                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
+                  🚀 {t.examples.project}
+                </div>
+                <div className="text-sm text-slate-500 line-clamp-3">
+                  {t.exampleTexts.project.substring(0, 80)}...
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleExampleClick(t.exampleTexts.daily)}
+                className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
+                disabled={isAnalyzing}
+              >
+                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
+                  📅 {t.examples.daily}
+                </div>
+                <div className="text-sm text-slate-500 line-clamp-3">
+                  {t.exampleTexts.daily.substring(0, 80)}...
+                </div>
+              </button>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-emerald-500 to-teal-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">{t.cta.title}</h2>
-                      <p className="text-xl text-emerald-100 mb-8 leading-relaxed">{t.cta.description}</p>
-          <Link href="/workspace">
-                          <Button size="lg" className="bg-white text-emerald-600 hover:bg-emerald-50 px-8 py-4 text-lg font-semibold">
-                {t.cta.button}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-          </Link>
-        </div>
-      </section>
+      </main>
 
       {/* Footer */}
-      <footer className="py-12 px-6 bg-slate-900">
-        <div className="max-w-6xl mx-auto text-center">
+      <footer className="py-8 px-6 border-t border-slate-200/60 bg-white/50">
+        <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white">{t.title}</h3>
+            <span className="text-lg font-semibold text-slate-700">{t.title}</span>
           </div>
-          <p className="text-slate-400">© 2024 Clearflow To-Do. All rights reserved.</p>
+          <p className="text-slate-500 text-sm">© 2024 Clearflow To-Do. All rights reserved.</p>
         </div>
       </footer>
     </div>
