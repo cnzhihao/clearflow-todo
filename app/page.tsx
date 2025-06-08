@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
-import { useRouter } from "next/navigation"
+import React, { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
@@ -52,54 +52,57 @@ const translations = {
   },
 }
 
-interface HomePageProps {
-  searchParams: { lang?: string }
-}
-
-export default function HomePage({ searchParams }: HomePageProps) {
-  const language = (searchParams.lang === "en" ? "en" : "zh") as "zh" | "en"
-  const t = translations[language]
+function HomePageContent() {
+  const searchParams = useSearchParams()
   const router = useRouter()
-  
+  const [language, setLanguage] = useState<"zh" | "en">("en")
   const [inputText, setInputText] = useState("")
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  // 初始化语言设置 - 优先级：URL参数 > localStorage > 默认英文
+  React.useEffect(() => {
+    // 检查是否需要清除 localStorage
+    const clearParam = searchParams.get('clear')
+    if (clearParam && typeof window !== 'undefined') {
+      localStorage.removeItem('preferred-language')
+    }
+    
+    const langParam = searchParams.get('lang')
+    if (langParam) {
+      const currentLang = (langParam === "en" ? "en" : "zh") as "zh" | "en"
+      setLanguage(currentLang)
+      // 保存到 localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('preferred-language', currentLang)
+      }
+    } else {
+      // 从 localStorage 读取用户偏好，默认英文
+      if (typeof window !== 'undefined') {
+        const savedLang = localStorage.getItem('preferred-language') as "zh" | "en" | null
+        const currentLang = savedLang || "en"
+        setLanguage(currentLang)
+      }
+    }
+  }, [searchParams])
+
+  // 语言变化时保存到 localStorage
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred-language', language)
+    }
+  }, [language])
+
+  const t = translations[language]
 
   const handleAnalyze = async () => {
     if (!inputText.trim()) return
     
-    setIsAnalyzing(true)
-    try {
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ inputText }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze text')
-      }
-
-      // 将分析结果传递给规划页面
-      const analysisData = {
-        inputText,
-        timestamp: Date.now()
-      }
-      
-      router.push(`/planning?data=${encodeURIComponent(JSON.stringify(analysisData))}`)
-    } catch (error) {
-      console.error('Error analyzing text:', error)
-      // 即使分析失败，也跳转到规划页面，让用户手动创建任务
-      const fallbackData = {
-        inputText,
-        timestamp: Date.now(),
-        error: true
-      }
-      router.push(`/planning?data=${encodeURIComponent(JSON.stringify(fallbackData))}`)
-    } finally {
-      setIsAnalyzing(false)
+    // 直接跳转到planning页面，传递输入文本
+    const planningData = {
+      inputText,
+      timestamp: Date.now()
     }
+    
+    router.push(`/planning?data=${encodeURIComponent(JSON.stringify(planningData))}&lang=${language}`)
   }
 
   const handleExampleClick = (exampleText: string) => {
@@ -140,11 +143,14 @@ export default function HomePage({ searchParams }: HomePageProps) {
         <div className="w-full max-w-4xl space-y-8">
           {/* Title */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 leading-tight">
+            <h1 className="text-2.5xl md:text-5xl font-bold text-slate-900 leading-tight whitespace-nowrap">
               {t.subtitle}
             </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务
+              {language === 'zh' 
+                ? '输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务'
+                : 'Enter any ideas, meeting notes, project plans, and AI will help extract specific todo tasks'
+              }
             </p>
           </div>
 
@@ -157,12 +163,11 @@ export default function HomePage({ searchParams }: HomePageProps) {
                 onKeyDown={handleKeyDown}
                 placeholder={t.placeholder}
                 className="min-h-[300px] text-lg leading-relaxed resize-none border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-2xl p-6 shadow-lg bg-white/80 backdrop-blur-sm"
-                disabled={isAnalyzing}
               />
               
               {/* Character count */}
               <div className="absolute bottom-4 right-4 text-sm text-slate-400">
-                {inputText.length} 字符
+                {inputText.length} {language === 'zh' ? '字符' : 'characters'}
               </div>
             </div>
 
@@ -170,28 +175,22 @@ export default function HomePage({ searchParams }: HomePageProps) {
             <div className="flex justify-center">
               <Button
                 onClick={handleAnalyze}
-                disabled={!inputText.trim() || isAnalyzing}
+                disabled={!inputText.trim()}
                 size="lg"
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
               >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    {t.analyzing}
-                  </>
-                ) : (
-                  <>
-                    <Brain className="w-5 h-5 mr-2" />
-                    {t.generateTasks}
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </>
-                )}
+                <Brain className="w-5 h-5 mr-2" />
+                {t.generateTasks}
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
 
             {/* Keyboard shortcut hint */}
             <div className="text-center text-sm text-slate-500">
-              按 {navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter 快速生成
+              {language === 'zh' 
+                ? `按 ${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter 快速生成`
+                : `Press ${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter to generate quickly`
+              }
             </div>
           </div>
 
@@ -208,7 +207,6 @@ export default function HomePage({ searchParams }: HomePageProps) {
               <button
                 onClick={() => handleExampleClick(t.exampleTexts.meeting)}
                 className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
-                disabled={isAnalyzing}
               >
                 <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
                   📝 {t.examples.meeting}
@@ -221,7 +219,6 @@ export default function HomePage({ searchParams }: HomePageProps) {
               <button
                 onClick={() => handleExampleClick(t.exampleTexts.project)}
                 className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
-                disabled={isAnalyzing}
               >
                 <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
                   🚀 {t.examples.project}
@@ -234,7 +231,6 @@ export default function HomePage({ searchParams }: HomePageProps) {
               <button
                 onClick={() => handleExampleClick(t.exampleTexts.daily)}
                 className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
-                disabled={isAnalyzing}
               >
                 <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
                   📅 {t.examples.daily}
@@ -261,5 +257,20 @@ export default function HomePage({ searchParams }: HomePageProps) {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+          <span className="text-slate-600">加载中...</span>
+        </div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
   )
 }

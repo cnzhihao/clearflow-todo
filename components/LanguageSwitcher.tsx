@@ -28,7 +28,10 @@ export function LanguageSwitcher({ currentLanguage }: LanguageSwitcherProps) {
   const setLanguage = (lang: "zh" | "en") => {
     const params = new URLSearchParams(searchParams.toString())
     params.set("lang", lang)
-    router.push(`/?${params.toString()}`)
+    
+    // 获取当前路径
+    const currentPath = window.location.pathname
+    router.push(`${currentPath}?${params.toString()}`)
   }
 
   return (
