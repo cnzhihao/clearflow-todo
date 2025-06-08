@@ -4,6 +4,11 @@
       "id": "1749308793852",
       "description": "清流待办项目一周迭代开发 - 基于现有AI驱动任务管理应用，实现用户体验升级和功能扩展，主要目标是将首页改为直接输入体验，升级任务管理为任务板，并新增今日事功能",
       "createdAt": "2025-06-07T15:06:33.852Z"
+    },
+    "1749394407390": {
+      "id": "1749394407390",
+      "description": "清流待办项目完整开发计划 - 基于现有AI驱动任务管理应用，实现用户体验升级和功能扩展，包括首页直接输入体验、任务规划页面、性能优化等功能",
+      "createdAt": "2025-06-08T14:53:27.390Z"
     }
   },
   "plans": {
@@ -303,6 +308,401 @@
         }
       ],
       "updatedAt": "2025-06-07T15:20:09.868Z"
+    },
+    "1749394407390": {
+      "goalId": "1749394407390",
+      "todos": [
+        {
+          "id": "1749394438894",
+          "title": "# 清流待办项目完整开发计划",
+          "description": "# 清流待办项目完整开发计划",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.894Z",
+          "updatedAt": "2025-06-08T14:53:58.894Z"
+        },
+        {
+          "id": "1749394438896",
+          "title": "## 项目概述",
+          "description": "## 项目概述\n基于现有的AI驱动任务管理应用，实现用户体验升级和功能扩展。主要目标是将首页改为直接输入体验，升级任务管理为任务板，新增今日事功能，并优化应用性能。",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.896Z",
+          "updatedAt": "2025-06-08T14:53:58.896Z"
+        },
+        {
+          "id": "1749394438897",
+          "title": "## 已完成功能（2025年6月7日）",
+          "description": "## 已完成功能（2025年6月7日）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.897Z",
+          "updatedAt": "2025-06-08T14:53:58.897Z"
+        },
+        {
+          "id": "1749394438898",
+          "title": "### 1. 首页改版 - 直接输入体验 ✅",
+          "description": "### 1. 首页改版 - 直接输入体验 ✅\n- 移除营销内容，实现类似bolt.new的直接输入体验\n- 添加大型输入框让用户直接输入想法\n- 输入后立即调用AI分析API并跳转到任务规划页面\n- 保持良好的移动端适配",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.898Z",
+          "updatedAt": "2025-06-08T14:53:58.898Z"
+        },
+        {
+          "id": "1749394438899",
+          "title": "### 2. 任务规划页面完整实现 ✅",
+          "description": "### 2. 任务规划页面完整实现 ✅\n- 创建新的任务规划页面(/planning)\n- 实现AI流式对话功能，支持思考过程展示\n- 展示AI分析结果和提取的任务列表\n- 用户可以编辑、确认或删除AI建议的任务\n- 支持任务提取和批量操作\n- 实现复制功能（文本格式和表格格式）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.899Z",
+          "updatedAt": "2025-06-08T14:53:58.899Z"
+        },
+        {
+          "id": "1749394438900",
+          "title": "### 3. 性能优化和渲染优化 ✅",
+          "description": "### 3. 性能优化和渲染优化 ✅\n- 使用React.memo优化TaskCard和ChatMessage组件\n- 使用useCallback缓存所有事件处理函数\n- 预定义样式对象避免内联对象创建\n- 优化流式响应更新频率，减少不必要的重新渲染\n- 使用useMemo缓存计算结果和时间格式化\n- 通过Playwright测试验证功能正常性",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.900Z",
+          "updatedAt": "2025-06-08T14:53:58.900Z"
+        },
+        {
+          "id": "1749394438900",
+          "title": "## 待开发功能",
+          "description": "## 待开发功能",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.900Z",
+          "updatedAt": "2025-06-08T14:53:58.900Z"
+        },
+        {
+          "id": "1749394438901",
+          "title": "### 高优先级（核心功能）",
+          "description": "### 高优先级（核心功能）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.901Z",
+          "updatedAt": "2025-06-08T14:53:58.901Z"
+        },
+        {
+          "id": "1749394438902",
+          "title": "#### 1. 升级任务数据模型",
+          "description": "#### 1. 升级任务数据模型\n- 扩展Task接口，添加支持任务板和今日事功能所需的字段\n- 包括开始日期、截止日期、标签、父任务ID、估计时长等\n- 实现数据迁移逻辑，确保现有用户数据不丢失",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.902Z",
+          "updatedAt": "2025-06-08T14:53:58.902Z"
+        },
+        {
+          "id": "1749394438903",
+          "title": "#### 2. 创建任务板页面基础架构",
+          "description": "#### 2. 创建任务板页面基础架构\n- 创建新的任务板页面(/board)替代当前的workspace页面\n- 实现基础的任务显示、添加、编辑、删除功能\n- 包括任务卡片组件、筛选器、搜索功能\n- 为后续的多视图切换预留架构",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.903Z",
+          "updatedAt": "2025-06-08T14:53:58.903Z"
+        },
+        {
+          "id": "1749394438903",
+          "title": "#### 3. 创建今日事功能页面",
+          "description": "#### 3. 创建今日事功能页面\n- 创建今日事页面(/today)，自动筛选出开始日期为今天的任务\n- 提供专注的今日任务视图，支持任务状态快速切换\n- 添加任务调度功能，可以将任务移动到明天或其他日期",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.903Z",
+          "updatedAt": "2025-06-08T14:53:58.903Z"
+        },
+        {
+          "id": "1749394438904",
+          "title": "### 中优先级（增强功能）",
+          "description": "### 中优先级（增强功能）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.904Z",
+          "updatedAt": "2025-06-08T14:53:58.904Z"
+        },
+        {
+          "id": "1749394438904",
+          "title": "#### 4. 实现任务板多视图切换",
+          "description": "#### 4. 实现任务板多视图切换\n- 为任务板添加列表视图、网格视图和时间线视图\n- 列表视图显示详细信息，网格视图适合快速浏览\n- 时间线视图按时间轴排列任务\n- 每种视图都要支持拖拽排序和基础操作",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.904Z",
+          "updatedAt": "2025-06-08T14:53:58.904Z"
+        },
+        {
+          "id": "1749394438905",
+          "title": "#### 5. 实现任务分解和编辑功能",
+          "description": "#### 5. 实现任务分解和编辑功能\n- 在任务板中添加任务分解功能，允许用户将复杂任务拆分为子任务\n- 实现任务编辑对话框，支持修改任务的所有属性\n- 子任务可以在父任务卡片中展示和管理",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.905Z",
+          "updatedAt": "2025-06-08T14:53:58.905Z"
+        },
+        {
+          "id": "1749394438905",
+          "title": "#### 6. 重构导航和路由结构",
+          "description": "#### 6. 重构导航和路由结构\n- 更新应用的导航结构，添加新的页面路由\n- 创建统一的导航栏组件，支持在首页、任务板、今日事之间切换\n- 移除或重构原有的workspace页面",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.905Z",
+          "updatedAt": "2025-06-08T14:53:58.905Z"
+        },
+        {
+          "id": "1749394438906",
+          "title": "### 低优先级（优化功能）",
+          "description": "### 低优先级（优化功能）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.906Z",
+          "updatedAt": "2025-06-08T14:53:58.906Z"
+        },
+        {
+          "id": "1749394438906",
+          "title": "#### 7. 优化移动端体验和响应式设计",
+          "description": "#### 7. 优化移动端体验和响应式设计\n- 确保所有新页面和组件在移动设备上都有良好的体验\n- 优化触摸交互、手势操作，调整布局适配小屏幕\n- 特别关注首页输入框、任务板视图切换、今日事的移动端操作体验",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.906Z",
+          "updatedAt": "2025-06-08T14:53:58.906Z"
+        },
+        {
+          "id": "1749394438907",
+          "title": "#### 8. 进一步性能优化和错误处理",
+          "description": "#### 8. 进一步性能优化和错误处理\n- 实现任务列表的虚拟滚动、图片懒加载、组件懒加载等\n- 完善错误边界和错误处理机制\n- 添加加载状态和空状态的友好提示\n- 确保AI分析失败时有合适的降级方案",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.907Z",
+          "updatedAt": "2025-06-08T14:53:58.907Z"
+        },
+        {
+          "id": "1749394438907",
+          "title": "## 技术架构",
+          "description": "## 技术架构",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.907Z",
+          "updatedAt": "2025-06-08T14:53:58.907Z"
+        },
+        {
+          "id": "1749394438908",
+          "title": "### 保持现有技术栈",
+          "description": "### 保持现有技术栈\n- Next.js 15 + React 19\n- TypeScript + Tailwind CSS\n- Shadcn UI + Radix UI\n- 本地存储（localStorage）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.908Z",
+          "updatedAt": "2025-06-08T14:53:58.908Z"
+        },
+        {
+          "id": "1749394438908",
+          "title": "### 性能优化技术",
+          "description": "### 性能优化技术\n- React.memo 组件优化\n- useCallback 和 useMemo 钩子\n- 预定义样式对象\n- 流式响应优化\n- 虚拟滚动（待实现）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.908Z",
+          "updatedAt": "2025-06-08T14:53:58.908Z"
+        },
+        {
+          "id": "1749394438909",
+          "title": "## 开发时间线（剩余工作）",
+          "description": "## 开发时间线（剩余工作）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.909Z",
+          "updatedAt": "2025-06-08T14:53:58.909Z"
+        },
+        {
+          "id": "1749394438909",
+          "title": "### 第1天：数据基础",
+          "description": "### 第1天：数据基础\n- 数据模型升级（0.5天）\n- 任务板基础架构（开始，0.5天）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.909Z",
+          "updatedAt": "2025-06-08T14:53:58.909Z"
+        },
+        {
+          "id": "1749394438910",
+          "title": "### 第2天：任务板完善",
+          "description": "### 第2天：任务板完善\n- 任务板基础架构（完成，1天）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.910Z",
+          "updatedAt": "2025-06-08T14:53:58.910Z"
+        },
+        {
+          "id": "1749394438910",
+          "title": "### 第3天：高级功能",
+          "description": "### 第3天：高级功能\n- 任务板多视图（1天）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.910Z",
+          "updatedAt": "2025-06-08T14:53:58.910Z"
+        },
+        {
+          "id": "1749394438911",
+          "title": "### 第4天：任务管理增强",
+          "description": "### 第4天：任务管理增强\n- 任务分解和编辑功能（0.5天）\n- 今日事功能（0.5天）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.911Z",
+          "updatedAt": "2025-06-08T14:53:58.911Z"
+        },
+        {
+          "id": "1749394438911",
+          "title": "### 第5天：完善和优化",
+          "description": "### 第5天：完善和优化\n- 导航重构（0.5天）\n- 移动端优化（0.25天）\n- 进一步性能优化（0.25天）",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.911Z",
+          "updatedAt": "2025-06-08T14:53:58.911Z"
+        },
+        {
+          "id": "1749394438912",
+          "title": "## 风险控制",
+          "description": "## 风险控制",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.912Z",
+          "updatedAt": "2025-06-08T14:53:58.912Z"
+        },
+        {
+          "id": "1749394438912",
+          "title": "### 主要风险",
+          "description": "### 主要风险\n1. 数据结构变更可能导致现有数据丢失\n2. 性能优化可能引入新的bug\n3. AI分析功能的稳定性问题",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.912Z",
+          "updatedAt": "2025-06-08T14:53:58.912Z"
+        },
+        {
+          "id": "1749394438913",
+          "title": "### 应对策略",
+          "description": "### 应对策略\n1. 实现数据版本控制和自动迁移\n2. 充分测试性能优化改动\n3. 加强错误边界和降级方案",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.913Z",
+          "updatedAt": "2025-06-08T14:53:58.913Z"
+        },
+        {
+          "id": "1749394438913",
+          "title": "## 成功指标",
+          "description": "## 成功指标\n- 用户能够通过首页直接生成任务 ✅\n- 任务规划页面流畅运行，无性能问题 ✅\n- 任务板基础功能可用且体验良好\n- 今日事功能能够正常筛选和管理当日任务\n- 整体用户体验流畅，无重大bug\n- 移动端基本可用",
+          "complexity": 5,
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:53:58.913Z",
+          "updatedAt": "2025-06-08T14:53:58.913Z"
+        },
+        {
+          "id": "1749394451263",
+          "title": "首页改版 - 直接输入体验",
+          "description": "将当前的首页营销内容替换为类似bolt.new的直接输入体验。移除\"开始使用\"按钮和功能介绍，添加大型输入框让用户直接输入想法。输入后立即调用AI分析API并跳转到任务规划页面。需要保持良好的移动端适配。",
+          "complexity": 6,
+          "codeExample": "export default function HomePage() {\n  const [inputText, setInputText] = useState(\"\")\n  const [isAnalyzing, setIsAnalyzing] = useState(false)\n  \n  const handleAnalyze = async () => {\n    setIsAnalyzing(true)\n    try {\n      const result = await analyzeText(inputText)\n      router.push(`/planning?data=${encodeURIComponent(JSON.stringify(result))}`)\n    } catch (error) {\n      // 错误处理\n    } finally {\n      setIsAnalyzing(false)\n    }\n  }\n  \n  return (\n    <div className=\"min-h-screen flex items-center justify-center\">\n      <div className=\"w-full max-w-4xl p-8\">\n        <h1>描述你的想法，让AI为你规划任务</h1>\n        <Textarea \n          value={inputText}\n          onChange={(e) => setInputText(e.target.value)}\n          placeholder=\"例如：今天开会讨论了新项目，需要准备方案文档...\"\n          className=\"min-h-[200px]\"\n        />\n        <Button onClick={handleAnalyze} disabled={!inputText.trim() || isAnalyzing}>\n          {isAnalyzing ? \"AI正在分析...\" : \"生成任务规划\"}\n        </Button>\n      </div>\n    </div>\n  )\n}",
+          "isComplete": true,
+          "createdAt": "2025-06-08T14:54:11.263Z",
+          "updatedAt": "2025-06-08T14:54:15.368Z"
+        },
+        {
+          "id": "1749394467267",
+          "title": "任务规划页面完整实现",
+          "description": "创建新的任务规划页面(/planning)，展示AI分析结果和提取的任务列表。实现AI流式对话功能，支持思考过程展示。用户可以编辑、确认或删除AI建议的任务，然后一键添加到任务板。支持任务提取和批量操作，实现复制功能（文本格式和表格格式）。",
+          "complexity": 8,
+          "codeExample": "export default function PlanningPage() {\n  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])\n  const [tasks, setTasks] = useState<Task[]>([])\n  \n  const sendMessage = async (message: string) => {\n    // 流式响应处理\n    const response = await fetch('/api/analyze', {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ inputText: message }),\n    })\n    \n    const reader = response.body?.getReader()\n    // 处理流式数据，支持thinking过程展示\n  }\n  \n  const extractTasks = (jsonTasks: ExtractableTask[]) => {\n    const newTasks = jsonTasks.map(task => ({\n      ...task,\n      id: generateId(),\n      source: 'ai'\n    }))\n    setTasks(prev => [...prev, ...newTasks])\n  }\n  \n  return (\n    <div className=\"flex gap-6\">\n      <div className=\"w-2/5\">\n        {/* Chat Panel */}\n        <ChatMessages messages={chatMessages} onExtractTasks={extractTasks} />\n        <ChatInput onSendMessage={sendMessage} />\n      </div>\n      <div className=\"w-3/5\">\n        {/* Tasks Panel */}\n        <TasksList tasks={tasks} onEdit={handleEditTask} onDelete={deleteTask} />\n        <CopyButtons tasks={tasks} />\n      </div>\n    </div>\n  )\n}",
+          "isComplete": true,
+          "createdAt": "2025-06-08T14:54:27.267Z",
+          "updatedAt": "2025-06-08T14:54:31.768Z"
+        },
+        {
+          "id": "1749394482107",
+          "title": "性能优化和渲染优化",
+          "description": "使用React.memo优化TaskCard和ChatMessage组件，使用useCallback缓存所有事件处理函数，预定义样式对象避免内联对象创建，优化流式响应更新频率减少不必要的重新渲染，使用useMemo缓存计算结果和时间格式化，通过Playwright测试验证功能正常性。",
+          "complexity": 7,
+          "codeExample": "// 预定义样式对象，避免内联对象创建\nconst PRIORITY_COLORS = {\n  high: \"bg-red-100 text-red-700 border-red-200\",\n  medium: \"bg-yellow-100 text-yellow-700 border-yellow-200\",\n  low: \"bg-green-100 text-green-700 border-green-200\",\n} as const\n\n// 使用 React.memo 优化组件\nconst TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete }) {\n  // 使用 useCallback 缓存事件处理函数\n  const handleSave = useCallback(() => {\n    onEdit(editedTask)\n    setIsEditing(false)\n  }, [editedTask, onEdit])\n\n  // 缓存时间格式化\n  const formattedTime = useMemo(() => {\n    return new Date(task.timestamp).toLocaleTimeString()\n  }, [task.timestamp])\n\n  return (\n    <Card className=\"border-slate-200\">\n      {/* 组件内容 */}\n    </Card>\n  )\n})\n\n// 优化流式响应更新频率\nif (updateCounter % 15 === 0 || now - lastUpdateTime > 300) {\n  setChatMessages(prev => prev.map(msg => ...))\n  lastUpdateTime = now\n}",
+          "isComplete": true,
+          "createdAt": "2025-06-08T14:54:42.107Z",
+          "updatedAt": "2025-06-08T14:54:47.690Z"
+        },
+        {
+          "id": "1749394497817",
+          "title": "升级任务数据模型",
+          "description": "扩展当前的Task接口，添加支持任务板和今日事功能所需的字段。包括开始日期、截止日期、标签、父任务ID（用于任务分解）、估计时长等。同时实现数据迁移逻辑，确保现有用户数据不丢失。",
+          "complexity": 5,
+          "codeExample": "interface Task {\n  id: string;\n  title: string;\n  description?: string;\n  completed: boolean;\n  priority: 'high' | 'medium' | 'low';\n  category?: string;\n  tags: string[];\n  \n  // 新增字段\n  startDate?: string; // ISO日期字符串\n  dueDate?: string;   // ISO日期字符串\n  estimatedHours?: number;\n  parentTaskId?: string; // 用于任务分解\n  subtasks: string[]; // 子任务ID数组\n  status: 'todo' | 'in-progress' | 'completed' | 'cancelled';\n  \n  createdAt: string;\n  updatedAt: string;\n  source: 'manual' | 'ai';\n}\n\nfunction migrateTaskData(oldTasks: OldTask[]): Task[] {\n  return oldTasks.map(oldTask => ({\n    ...oldTask,\n    tags: [],\n    subtasks: [],\n    status: oldTask.completed ? 'completed' : 'todo',\n    updatedAt: oldTask.createdAt,\n  }))\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:54:57.817Z",
+          "updatedAt": "2025-06-08T14:54:57.817Z"
+        },
+        {
+          "id": "1749394507864",
+          "title": "创建任务板页面基础架构",
+          "description": "创建新的任务板页面(/board)替代当前的workspace页面。实现基础的任务显示、添加、编辑、删除功能。包括任务卡片组件、筛选器、搜索功能。为后续的多视图切换预留架构。",
+          "complexity": 8,
+          "codeExample": "export default function BoardPage() {\n  const [tasks, setTasks] = useState<Task[]>([])\n  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'timeline'>('list')\n  const [searchQuery, setSearchQuery] = useState('')\n  const [filterPriority, setFilterPriority] = useState<string>('all')\n\n  const filteredTasks = useMemo(() => {\n    return tasks.filter(task => {\n      const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase())\n      const matchesPriority = filterPriority === 'all' || task.priority === filterPriority\n      return matchesSearch && matchesPriority\n    })\n  }, [tasks, searchQuery, filterPriority])\n\n  return (\n    <div className=\"container mx-auto p-6\">\n      <div className=\"flex justify-between items-center mb-6\">\n        <h1 className=\"text-2xl font-bold\">任务板</h1>\n        <div className=\"flex gap-4\">\n          <SearchInput value={searchQuery} onChange={setSearchQuery} />\n          <PriorityFilter value={filterPriority} onChange={setFilterPriority} />\n          <ViewModeToggle value={viewMode} onChange={setViewMode} />\n        </div>\n      </div>\n      \n      <TasksView \n        tasks={filteredTasks} \n        viewMode={viewMode}\n        onEdit={handleEditTask}\n        onDelete={handleDeleteTask}\n        onAdd={handleAddTask}\n      />\n    </div>\n  )\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:55:07.864Z",
+          "updatedAt": "2025-06-08T14:55:07.864Z"
+        },
+        {
+          "id": "1749394518918",
+          "title": "创建今日事功能页面",
+          "description": "创建今日事页面(/today)，自动筛选出开始日期为今天的任务。提供专注的今日任务视图，支持任务状态快速切换、批量操作。添加任务调度功能，可以将任务移动到明天或其他日期。",
+          "complexity": 7,
+          "codeExample": "export default function TodayPage() {\n  const [tasks, setTasks] = useState<Task[]>([])\n  const today = new Date().toISOString().split('T')[0]\n  \n  const todayTasks = useMemo(() => {\n    return tasks.filter(task => \n      task.startDate === today || \n      (task.dueDate === today && task.status !== 'completed')\n    )\n  }, [tasks, today])\n\n  const handleRescheduleTask = (taskId: string, newDate: string) => {\n    setTasks(prev => prev.map(task => \n      task.id === taskId \n        ? { ...task, startDate: newDate, updatedAt: new Date().toISOString() }\n        : task\n    ))\n  }\n\n  const handleToggleStatus = (taskId: string) => {\n    setTasks(prev => prev.map(task => \n      task.id === taskId \n        ? { \n            ...task, \n            status: task.status === 'completed' ? 'todo' : 'completed',\n            completed: task.status !== 'completed',\n            updatedAt: new Date().toISOString()\n          }\n        : task\n    ))\n  }\n\n  return (\n    <div className=\"container mx-auto p-6\">\n      <div className=\"flex justify-between items-center mb-6\">\n        <h1 className=\"text-2xl font-bold\">今日事 - {today}</h1>\n        <div className=\"text-sm text-gray-600\">\n          {todayTasks.length} 个任务\n        </div>\n      </div>\n      \n      <TodayTasksList \n        tasks={todayTasks}\n        onToggleStatus={handleToggleStatus}\n        onReschedule={handleRescheduleTask}\n        onEdit={handleEditTask}\n      />\n    </div>\n  )\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:55:18.918Z",
+          "updatedAt": "2025-06-08T14:55:18.918Z"
+        },
+        {
+          "id": "1749394528296",
+          "title": "实现任务板多视图切换",
+          "description": "为任务板添加列表视图、网格视图和时间线视图。列表视图显示详细信息，网格视图适合快速浏览，时间线视图按时间轴排列任务。每种视图都要支持拖拽排序和基础操作。",
+          "complexity": 7,
+          "codeExample": "function TasksView({ tasks, viewMode, onEdit, onDelete }: TasksViewProps) {\n  switch (viewMode) {\n    case 'list':\n      return (\n        <div className=\"space-y-2\">\n          {tasks.map(task => (\n            <TaskListItem \n              key={task.id} \n              task={task} \n              onEdit={onEdit} \n              onDelete={onDelete}\n            />\n          ))}\n        </div>\n      )\n    \n    case 'grid':\n      return (\n        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4\">\n          {tasks.map(task => (\n            <TaskGridCard \n              key={task.id} \n              task={task} \n              onEdit={onEdit} \n              onDelete={onDelete}\n            />\n          ))}\n        </div>\n      )\n    \n    case 'timeline':\n      return (\n        <TaskTimeline \n          tasks={tasks} \n          onEdit={onEdit} \n          onDelete={onDelete}\n        />\n      )\n    \n    default:\n      return null\n  }\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:55:28.296Z",
+          "updatedAt": "2025-06-08T14:55:28.296Z"
+        },
+        {
+          "id": "1749394541827",
+          "title": "实现任务分解和编辑功能",
+          "description": "在任务板中添加任务分解功能，允许用户将复杂任务拆分为子任务。实现任务编辑对话框，支持修改任务的所有属性（标题、描述、优先级、日期、标签等）。子任务可以在父任务卡片中展示和管理。",
+          "complexity": 6,
+          "codeExample": "function TaskEditDialog({ task, isOpen, onClose, onSave }: TaskEditDialogProps) {\n  const [editedTask, setEditedTask] = useState(task)\n  const [subtasks, setSubtasks] = useState<Task[]>([])\n\n  const handleAddSubtask = () => {\n    const newSubtask: Task = {\n      id: generateId(),\n      title: '新子任务',\n      parentTaskId: task.id,\n      priority: 'medium',\n      status: 'todo',\n      // ... 其他默认值\n    }\n    setSubtasks(prev => [...prev, newSubtask])\n  }\n\n  const handleSaveTask = () => {\n    // 保存主任务\n    onSave({\n      ...editedTask,\n      subtasks: subtasks.map(st => st.id),\n      updatedAt: new Date().toISOString()\n    })\n    \n    // 保存子任务\n    subtasks.forEach(subtask => {\n      onSave(subtask)\n    })\n    \n    onClose()\n  }\n\n  return (\n    <Dialog open={isOpen} onOpenChange={onClose}>\n      <DialogContent className=\"max-w-2xl\">\n        <DialogHeader>\n          <DialogTitle>编辑任务</DialogTitle>\n        </DialogHeader>\n        \n        <div className=\"space-y-4\">\n          <Input \n            value={editedTask.title}\n            onChange={(e) => setEditedTask(prev => ({ ...prev, title: e.target.value }))}\n            placeholder=\"任务标题\"\n          />\n          \n          <Textarea \n            value={editedTask.description || ''}\n            onChange={(e) => setEditedTask(prev => ({ ...prev, description: e.target.value }))}\n            placeholder=\"任务描述\"\n          />\n          \n          {/* 子任务管理 */}\n          <div>\n            <div className=\"flex justify-between items-center mb-2\">\n              <h4 className=\"font-medium\">子任务</h4>\n              <Button onClick={handleAddSubtask} size=\"sm\">\n                添加子任务\n              </Button>\n            </div>\n            <SubtasksList \n              subtasks={subtasks}\n              onEdit={setSubtasks}\n              onDelete={(id) => setSubtasks(prev => prev.filter(st => st.id !== id))}\n            />\n          </div>\n        </div>\n        \n        <DialogFooter>\n          <Button onClick={handleSaveTask}>保存</Button>\n          <Button variant=\"outline\" onClick={onClose}>取消</Button>\n        </DialogFooter>\n      </DialogContent>\n    </Dialog>\n  )\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:55:41.827Z",
+          "updatedAt": "2025-06-08T14:55:41.827Z"
+        },
+        {
+          "id": "1749394552947",
+          "title": "重构导航和路由结构",
+          "description": "更新应用的导航结构，添加新的页面路由。创建统一的导航栏组件，支持在首页、任务板、今日事之间切换。移除或重构原有的workspace页面，确保用户体验的连贯性。",
+          "complexity": 4,
+          "codeExample": "function Navigation() {\n  const pathname = usePathname()\n  \n  const navItems = [\n    { href: '/', label: '首页', icon: Home },\n    { href: '/planning', label: '任务规划', icon: Brain },\n    { href: '/board', label: '任务板', icon: Layout },\n    { href: '/today', label: '今日事', icon: Calendar },\n  ]\n\n  return (\n    <nav className=\"bg-white border-b border-gray-200\">\n      <div className=\"container mx-auto px-4\">\n        <div className=\"flex items-center justify-between h-16\">\n          <div className=\"flex items-center space-x-8\">\n            <Link href=\"/\" className=\"flex items-center space-x-2\">\n              <Sparkles className=\"w-6 h-6 text-emerald-600\" />\n              <span className=\"font-bold text-xl\">清流待办</span>\n            </Link>\n            \n            <div className=\"flex space-x-4\">\n              {navItems.map(item => (\n                <Link\n                  key={item.href}\n                  href={item.href}\n                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${\n                    pathname === item.href\n                      ? 'bg-emerald-100 text-emerald-700'\n                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'\n                  }`}\n                >\n                  <item.icon className=\"w-4 h-4\" />\n                  <span>{item.label}</span>\n                </Link>\n              ))}\n            </div>\n          </div>\n          \n          <LanguageSwitcher />\n        </div>\n      </div>\n    </nav>\n  )\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:55:52.947Z",
+          "updatedAt": "2025-06-08T14:55:52.947Z"
+        },
+        {
+          "id": "1749394565920",
+          "title": "优化移动端体验和响应式设计",
+          "description": "确保所有新页面和组件在移动设备上都有良好的体验。优化触摸交互、手势操作，调整布局适配小屏幕。特别关注首页输入框、任务板视图切换、今日事的移动端操作体验。",
+          "complexity": 5,
+          "codeExample": "// 移动端适配的响应式设计\nfunction MobileOptimizedLayout({ children }: { children: React.ReactNode }) {\n  const [isMobile, setIsMobile] = useState(false)\n\n  useEffect(() => {\n    const checkMobile = () => {\n      setIsMobile(window.innerWidth < 768)\n    }\n    \n    checkMobile()\n    window.addEventListener('resize', checkMobile)\n    return () => window.removeEventListener('resize', checkMobile)\n  }, [])\n\n  return (\n    <div className={`${isMobile ? 'mobile-layout' : 'desktop-layout'}`}>\n      {isMobile ? (\n        <MobileNavigation />\n      ) : (\n        <DesktopNavigation />\n      )}\n      \n      <main className={`\n        ${isMobile ? 'px-4 py-2' : 'px-6 py-4'}\n        ${isMobile ? 'pb-20' : 'pb-4'} // 为移动端底部导航留空间\n      `}>\n        {children}\n      </main>\n      \n      {isMobile && <MobileBottomNavigation />}\n    </div>\n  )\n}\n\n// 移动端手势支持\nfunction useTouchGestures(onSwipeLeft?: () => void, onSwipeRight?: () => void) {\n  const [touchStart, setTouchStart] = useState<number | null>(null)\n  const [touchEnd, setTouchEnd] = useState<number | null>(null)\n\n  const minSwipeDistance = 50\n\n  const onTouchStart = (e: TouchEvent) => {\n    setTouchEnd(null)\n    setTouchStart(e.targetTouches[0].clientX)\n  }\n\n  const onTouchMove = (e: TouchEvent) => {\n    setTouchEnd(e.targetTouches[0].clientX)\n  }\n\n  const onTouchEnd = () => {\n    if (!touchStart || !touchEnd) return\n    \n    const distance = touchStart - touchEnd\n    const isLeftSwipe = distance > minSwipeDistance\n    const isRightSwipe = distance < -minSwipeDistance\n\n    if (isLeftSwipe && onSwipeLeft) onSwipeLeft()\n    if (isRightSwipe && onSwipeRight) onSwipeRight()\n  }\n\n  return { onTouchStart, onTouchMove, onTouchEnd }\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:56:05.920Z",
+          "updatedAt": "2025-06-08T14:56:05.920Z"
+        },
+        {
+          "id": "1749394579738",
+          "title": "进一步性能优化和错误处理",
+          "description": "实现任务列表的虚拟滚动、图片懒加载、组件懒加载等。完善错误边界和错误处理机制，添加加载状态和空状态的友好提示。确保AI分析失败时有合适的降级方案。",
+          "complexity": 4,
+          "codeExample": "// 虚拟滚动实现\nfunction VirtualizedTaskList({ tasks, itemHeight = 80 }: VirtualizedTaskListProps) {\n  const [containerHeight, setContainerHeight] = useState(400)\n  const [scrollTop, setScrollTop] = useState(0)\n  \n  const visibleStart = Math.floor(scrollTop / itemHeight)\n  const visibleEnd = Math.min(\n    visibleStart + Math.ceil(containerHeight / itemHeight) + 1,\n    tasks.length\n  )\n  \n  const visibleTasks = tasks.slice(visibleStart, visibleEnd)\n  const totalHeight = tasks.length * itemHeight\n  const offsetY = visibleStart * itemHeight\n\n  return (\n    <div \n      className=\"overflow-auto\"\n      style={{ height: containerHeight }}\n      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}\n    >\n      <div style={{ height: totalHeight, position: 'relative' }}>\n        <div style={{ transform: `translateY(${offsetY}px)` }}>\n          {visibleTasks.map((task, index) => (\n            <TaskItem \n              key={task.id} \n              task={task} \n              style={{ height: itemHeight }}\n            />\n          ))}\n        </div>\n      </div>\n    </div>\n  )\n}\n\n// 错误边界组件\nclass TaskErrorBoundary extends React.Component<\n  { children: React.ReactNode },\n  { hasError: boolean; error?: Error }\n> {\n  constructor(props: { children: React.ReactNode }) {\n    super(props)\n    this.state = { hasError: false }\n  }\n\n  static getDerivedStateFromError(error: Error) {\n    return { hasError: true, error }\n  }\n\n  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {\n    console.error('Task component error:', error, errorInfo)\n  }\n\n  render() {\n    if (this.state.hasError) {\n      return (\n        <div className=\"p-4 bg-red-50 border border-red-200 rounded-lg\">\n          <h3 className=\"text-red-800 font-medium\">出现了一些问题</h3>\n          <p className=\"text-red-600 text-sm mt-1\">\n            任务加载失败，请刷新页面重试\n          </p>\n          <Button \n            onClick={() => window.location.reload()} \n            className=\"mt-2\"\n            size=\"sm\"\n          >\n            刷新页面\n          </Button>\n        </div>\n      )\n    }\n\n    return this.props.children\n  }\n}",
+          "isComplete": false,
+          "createdAt": "2025-06-08T14:56:19.738Z",
+          "updatedAt": "2025-06-08T14:56:19.738Z"
+        }
+      ],
+      "updatedAt": "2025-06-08T14:56:19.738Z"
     }
   }
 }
