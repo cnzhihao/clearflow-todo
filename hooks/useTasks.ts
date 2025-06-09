@@ -1,6 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { 
+  Task, 
+  TaskV1,
+  AIAnalysisResult,
+  createDefaultTask,
+  TaskStatus,
+  TaskPriority,
+  TaskSource,
+  CURRENT_TASK_VERSION,
+  getTaskDisplayStatus,
+  isTodayTask,
+  getSubtasks,
+  getParentTask,
+  TaskStatusType,
+  TaskPriorityType,
+  TaskSourceType,
+} from '@/lib/types/task';
+import { 
+  loadTasksFromStorage, 
+  saveTasksToStorage, 
+  autoMigrate,
+  needsMigration,
+  performMigration,
+} from '@/lib/utils/task-migration';
 
-export interface Task {
+// 保持向后兼容的旧接口
+export interface LegacyTask {
   id: string;
   title: string;
   description?: string;
@@ -12,74 +37,186 @@ export interface Task {
   source: 'manual' | 'ai';
 }
 
-export interface AIAnalysisResult {
-  reasoning: string;
-  tasks: Omit<Task, 'id' | 'completed' | 'createdAt' | 'source'>[];
-}
+export type { Task, AIAnalysisResult };
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [aiSuggestions, setAiSuggestions] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'source'>[]>([]);
+  const [aiSuggestions, setAiSuggestions] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'source' | 'version'>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string>('');
+  const [migrationStatus, setMigrationStatus] = useState<'pending' | 'migrating' | 'completed' | 'failed'>('pending');
 
-  // Load tasks from localStorage on mount
+  // 初始化和数据迁移
   useEffect(() => {
-    const savedTasks = localStorage.getItem('clearflow-tasks');
-    if (savedTasks) {
+    const initializeTasks = async () => {
       try {
-        setTasks(JSON.parse(savedTasks));
+        // 检查是否需要迁移
+        if (needsMigration()) {
+          setMigrationStatus('migrating');
+          await autoMigrate();
+        }
+        
+        // 加载任务数据
+        const loadedTasks = loadTasksFromStorage();
+        setTasks(loadedTasks);
+        setMigrationStatus('completed');
       } catch (error) {
-        console.error('Error parsing saved tasks:', error);
+        console.error('Failed to initialize tasks:', error);
+        setMigrationStatus('failed');
+        
+        // 尝试加载原始数据作为降级方案
+        try {
+          const fallbackData = localStorage.getItem('clearflow-tasks');
+          if (fallbackData) {
+            const parsed = JSON.parse(fallbackData);
+            if (Array.isArray(parsed)) {
+              setTasks(parsed);
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback data loading failed:', fallbackError);
+        }
       }
-    }
+    };
+
+    initializeTasks();
   }, []);
 
-  // Save tasks to localStorage whenever tasks change
+  // 保存任务到localStorage
   useEffect(() => {
-    localStorage.setItem('clearflow-tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    if (migrationStatus === 'completed' && tasks.length >= 0) {
+      saveTasksToStorage(tasks);
+    }
+  }, [tasks, migrationStatus]);
 
-  // Add a new task
-  const addTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+  // 生成唯一ID
+  const generateId = useCallback(() => {
+    return crypto.randomUUID();
+  }, []);
+
+  // 添加新任务
+  const addTask = useCallback((taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
+    const now = new Date().toISOString();
     const newTask: Task = {
+      ...createDefaultTask(),
       ...taskData,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now,
+      version: CURRENT_TASK_VERSION,
     };
+    
     setTasks(prev => [...prev, newTask]);
-  };
+    return newTask;
+  }, [generateId]);
 
-  // Toggle task completion
-  const toggleTask = (taskId: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
-  };
+  // 切换任务完成状态
+  const toggleTask = useCallback((taskId: string) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id === taskId) {
+        const newCompleted = !task.completed;
+        const newStatus = newCompleted ? TaskStatus.COMPLETED : TaskStatus.TODO;
+        
+        return {
+          ...task,
+          completed: newCompleted,
+          status: newStatus as TaskStatusType,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return task;
+    }));
+  }, []);
 
-  // Delete a task
-  const deleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
-  };
+  // 删除任务
+  const deleteTask = useCallback((taskId: string) => {
+    setTasks(prev => {
+      // 同时删除所有子任务
+      const taskToDelete = prev.find(t => t.id === taskId);
+      if (taskToDelete && taskToDelete.subtasks) {
+        return prev.filter(task => 
+          task.id !== taskId && 
+          !taskToDelete.subtasks!.includes(task.id)
+        );
+      }
+      
+      return prev.filter(task => task.id !== taskId);
+    });
+  }, []);
 
-  // Update a task
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, ...updates } : task
-    ));
-  };
+  // 更新任务
+  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          ...updates,
+          updatedAt: new Date().toISOString(),
+          version: CURRENT_TASK_VERSION,
+        };
+      }
+      return task;
+    }));
+  }, []);
 
-  // Add AI suggestion to tasks
-  const adoptAISuggestion = (suggestion: Omit<Task, 'id' | 'completed' | 'createdAt' | 'source'>) => {
+  // 更新任务状态
+  const updateTaskStatus = useCallback((taskId: string, status: TaskStatusType) => {
+    const completed = status === TaskStatus.COMPLETED;
+    updateTask(taskId, { status, completed });
+  }, [updateTask]);
+
+  // 添加子任务
+  const addSubtask = useCallback((parentTaskId: string, subtaskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'version' | 'parentTaskId'>) => {
+    const subtask = addTask({
+      ...subtaskData,
+      parentTaskId,
+    });
+    
+    // 更新父任务的subtasks数组
+    setTasks(prev => prev.map(task => {
+      if (task.id === parentTaskId) {
+        const currentSubtasks = task.subtasks || [];
+        return {
+          ...task,
+          subtasks: [...currentSubtasks, subtask.id],
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return task;
+    }));
+    
+    return subtask;
+  }, [addTask]);
+
+  // 移除子任务
+  const removeSubtask = useCallback((parentTaskId: string, subtaskId: string) => {
+    // 删除子任务
+    deleteTask(subtaskId);
+    
+    // 从父任务的subtasks数组中移除
+    setTasks(prev => prev.map(task => {
+      if (task.id === parentTaskId && task.subtasks) {
+        return {
+          ...task,
+          subtasks: task.subtasks.filter(id => id !== subtaskId),
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return task;
+    }));
+  }, [deleteTask]);
+
+  // 采用AI建议
+  const adoptAISuggestion = useCallback((suggestion: Omit<Task, 'id' | 'completed' | 'createdAt' | 'source' | 'version'>) => {
     addTask({
       ...suggestion,
       completed: false,
-      source: 'ai'
+      source: TaskSource.AI as TaskSourceType,
     });
-  };
+  }, [addTask]);
 
-  // AI analysis function
-  const analyzeText = async (inputText: string) => {
+  // AI分析功能
+  const analyzeText = useCallback(async (inputText: string) => {
     setIsLoading(true);
     setAnalysisResult('');
     setAiSuggestions([]);
@@ -121,7 +258,6 @@ export function useTasks() {
               if (data.type === 'content') {
                 setAnalysisResult(prev => prev + data.content);
               } else if (data.type === 'done') {
-                // 处理分析完成
                 break;
               } else if (data.type === 'error') {
                 throw new Error(data.message);
@@ -138,21 +274,21 @@ export function useTasks() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  // Extract tasks from analysis result
-  const extractTasksFromAnalysis = (analysis: string) => {
+  // 从分析结果提取任务
+  const extractTasksFromAnalysis = useCallback((analysis: string) => {
     try {
-      // 尝试从分析结果中提取JSON格式的任务列表
       const jsonMatch = analysis.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         const tasksData = JSON.parse(jsonMatch[0]);
         const extractedTasks = tasksData.map((task: any) => ({
           title: task.title || task.task || '',
           description: task.description || '',
-          priority: task.priority || 'medium',
+          priority: (task.priority || 'medium') as TaskPriorityType,
           category: task.category || 'general',
-          deadline: task.deadline || undefined,
+          dueDate: task.deadline || task.dueDate || undefined,
+          tags: task.tags || [],
         }));
         setAiSuggestions(extractedTasks);
         return extractedTasks;
@@ -161,44 +297,120 @@ export function useTasks() {
       console.error('Error extracting tasks from analysis:', error);
     }
 
-    // 如果无法提取JSON，则基于分析文本创建简单的任务建议
+    // 降级方案：基于文本创建简单任务
     const lines = analysis.split('\n').filter(line => 
       line.trim() && !line.startsWith('#') && !line.startsWith('*')
     );
     
-    const simpleTasks = lines.slice(0, 5).map((line, index) => ({
+    const simpleTasks = lines.slice(0, 5).map((line) => ({
       title: line.trim().replace(/^\d+\.?\s*/, '').substring(0, 100),
       description: '',
-      priority: 'medium' as const,
+      priority: TaskPriority.MEDIUM as TaskPriorityType,
       category: 'general',
+      tags: [],
     }));
 
     setAiSuggestions(simpleTasks);
     return simpleTasks;
-  };
+  }, []);
 
-  // Statistics
+  // 获取今日任务
+  const getTodayTasks = useCallback(() => {
+    return tasks.filter(isTodayTask);
+  }, [tasks]);
+
+  // 获取任务的子任务
+  const getTaskSubtasks = useCallback((taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    return task ? getSubtasks(task, tasks) : [];
+  }, [tasks]);
+
+  // 获取任务的父任务
+  const getTaskParent = useCallback((taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    return task ? getParentTask(task, tasks) : null;
+  }, [tasks]);
+
+  // 按分类分组任务
+  const getTasksByCategory = useCallback(() => {
+    const grouped: Record<string, Task[]> = {};
+    
+    tasks.forEach(task => {
+      const category = task.category || 'uncategorized';
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push(task);
+    });
+    
+    return grouped;
+  }, [tasks]);
+
+  // 按状态分组任务
+  const getTasksByStatus = useCallback(() => {
+    const grouped: Record<string, Task[]> = {
+      [TaskStatus.TODO]: [],
+      [TaskStatus.IN_PROGRESS]: [],
+      [TaskStatus.COMPLETED]: [],
+      [TaskStatus.CANCELLED]: [],
+    };
+    
+    tasks.forEach(task => {
+      const status = task.status || (task.completed ? TaskStatus.COMPLETED : TaskStatus.TODO);
+      if (grouped[status]) {
+        grouped[status].push(task);
+      }
+    });
+    
+    return grouped;
+  }, [tasks]);
+
+  // 统计信息
   const stats = {
     total: tasks.length,
-    completed: tasks.filter(task => task.completed).length,
-    pending: tasks.filter(task => !task.completed).length,
-    aiSuggested: tasks.filter(task => task.source === 'ai').length,
-    completionRate: tasks.length > 0 ? Math.round((tasks.filter(task => task.completed).length / tasks.length) * 100) : 0,
+    completed: tasks.filter(task => task.completed || task.status === TaskStatus.COMPLETED).length,
+    pending: tasks.filter(task => !task.completed && task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED).length,
+    inProgress: tasks.filter(task => task.status === TaskStatus.IN_PROGRESS).length,
+    cancelled: tasks.filter(task => task.status === TaskStatus.CANCELLED).length,
+    aiSuggested: tasks.filter(task => task.source === TaskSource.AI).length,
+    todayTasks: getTodayTasks().length,
+    completionRate: tasks.length > 0 ? Math.round((tasks.filter(task => task.completed || task.status === TaskStatus.COMPLETED).length / tasks.length) * 100) : 0,
   };
 
   return {
+    // 数据
     tasks,
     aiSuggestions,
     isLoading,
     analysisResult,
+    migrationStatus,
     stats,
+    
+    // 基础操作
     addTask,
     toggleTask,
     deleteTask,
     updateTask,
+    updateTaskStatus,
+    
+    // 子任务操作
+    addSubtask,
+    removeSubtask,
+    getTaskSubtasks,
+    getTaskParent,
+    
+    // AI功能
     adoptAISuggestion,
     analyzeText,
     extractTasksFromAnalysis,
-    setAiSuggestions,
+    
+    // 查询功能
+    getTodayTasks,
+    getTasksByCategory,
+    getTasksByStatus,
+    
+    // 工具函数
+    getTaskDisplayStatus: (task: Task) => getTaskDisplayStatus(task),
+    isTodayTask: (task: Task) => isTodayTask(task),
   };
 } 

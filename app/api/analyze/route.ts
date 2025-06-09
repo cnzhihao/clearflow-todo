@@ -147,10 +147,11 @@ export async function POST(req: NextRequest) {
     }
     
     const completion = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1-0528",
+      model: "deepseek/deepseek-r1-0528:free",
       messages,
       stream: true,
-      temperature: 0.7,
+      temperature: 0,
+      top_p: 0.5,
     });
 
     // Create a readable stream for Server-Sent Events
