@@ -11,7 +11,6 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   Sparkles,
-  Brain,
   Loader2,
   ArrowRight,
   Edit3,
@@ -25,8 +24,6 @@ import {
   Send,
   User,
   Bot,
-  ChevronDown,
-  ChevronRight,
   Download,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
@@ -42,6 +39,16 @@ interface Task {
   source: 'ai' | 'manual'
 }
 
+interface TaskCard {
+  id: string
+  title: string
+  description: string
+  priority: 'high' | 'medium' | 'low'
+  deadline?: string
+  category: string
+  completed: boolean
+}
+
 interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
@@ -49,19 +56,14 @@ interface ChatMessage {
   timestamp: number
   isStreaming?: boolean
   
-  // 思考过程相关 - 优化后的字段
-  thinking?: string
-  thinkingStartTime?: number
-  thinkingEndTime?: number
-  thinkingDuration?: number
-  isThinkingActive?: boolean // 当前是否正在思考
-  isThinkingComplete?: boolean
-  
-  // JSON解析相关（仅针对正式内容）
+  // JSON解析相关
   hasJson?: boolean
   jsonTasks?: ExtractableTask[]
   isProcessingJson?: boolean
   extractedTasks?: ExtractableTask[]
+  // 新增：解析状态
+  jsonParsingStatus?: 'detecting' | 'parsing' | 'completed' | 'error'
+  taskCount?: number
 }
 
 interface ExtractableTask {
@@ -74,15 +76,7 @@ interface ExtractableTask {
   completed: boolean
 }
 
-// 新增：流式解析状态接口
-interface StreamParsingState {
-  isInThinking: boolean
-  thinkingBuffer: string
-  contentBuffer: string
-  thinkingStartTime: number
-  hasDetectedThinkingStart: boolean
-  hasDetectedThinkingEnd: boolean
-}
+// 移除流式解析状态接口，因为已改为非流式处理
 
 const translations = {
   zh: {
@@ -116,6 +110,11 @@ const translations = {
     copyTextSuccess: "已完成复制！现在你可以把它粘贴到你的 Notion 或飞书文档里了！",
     copyTableSuccess: "已完成复制！现在你可以把它粘贴到你的 Notion 或飞书多维表格里了！",
     deadlinePlaceholder: "选择截止时间",
+    planGenerating: "计划生成中...",
+    planCompleted: "已完成读取，共 {count} 个任务",
+    extractTask: "提取",
+    extractAllTasks: "提取所有任务",
+    taskCard: "任务卡片",
   },
   en: {
     title: "AI Task Planning",
@@ -148,6 +147,11 @@ const translations = {
     copyTextSuccess: "Copy completed! You can now paste it into your Notion or Feishu documents!",
     copyTableSuccess: "Copy completed! You can now paste it into your Notion or Feishu multi-dimensional tables!",
     deadlinePlaceholder: "Select deadline",
+    planGenerating: "Plan generating...",
+    planCompleted: "Completed reading, {count} tasks found",
+    extractTask: "Extract",
+    extractAllTasks: "Extract All Tasks",
+    taskCard: "Task Card",
   },
 }
 
@@ -348,145 +352,201 @@ const TaskCard = React.memo(function TaskCard({
   )
 })
 
+// 新增：任务卡片组件
+const TaskCardComponent = React.memo(function TaskCardComponent({
+  task,
+  onExtract,
+  language
+}: {
+  task: TaskCard
+  onExtract: (task: TaskCard) => void
+  language: "zh" | "en"
+}) {
+  const t = translations[language]
+
+  const handleExtract = useCallback(() => {
+    onExtract(task)
+  }, [task, onExtract])
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3 hover:border-slate-300 transition-colors relative">
+      <div className="flex items-start justify-between pr-20">
+        <div className="flex-1">
+          <h4 className="font-medium text-slate-900 text-base leading-tight">{task.title}</h4>
+          {task.description && (
+            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{task.description}</p>
+          )}
+        </div>
+        <Button
+          onClick={handleExtract}
+          size="sm"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 h-8 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium shadow-sm"
+        >
+          {t.extractTask}
+        </Button>
+      </div>
+      
+      <div className="flex items-center gap-2 flex-wrap">
+        <Badge className={`text-xs ${PRIORITY_COLORS[task.priority]}`}>
+          {t[task.priority]}
+        </Badge>
+        {task.category && (
+          <Badge variant="outline" className="text-xs text-slate-600">
+            {task.category}
+          </Badge>
+        )}
+        {task.deadline && (
+          <Badge variant="outline" className="text-xs text-slate-600 flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {task.deadline}
+          </Badge>
+        )}
+      </div>
+    </div>
+  )
+})
+
 // 使用 React.memo 优化 ChatMessage 组件
 const ChatMessage = React.memo(function ChatMessage({ 
   message, 
   language, 
-  onExtractTasks
+  onExtractTasks,
+  onExtractSingleTask
 }: { 
   message: ChatMessage; 
   language: "zh" | "en";
   onExtractTasks: (tasks: ExtractableTask[]) => void;
+  onExtractSingleTask: (task: TaskCard) => void;
 }) {
-  const [isThinkingExpanded, setIsThinkingExpanded] = useState(false)
   const isUser = message.role === 'user'
+  const t = translations[language]
 
-  // 思考时间格式化
-  const formattedThinkingDuration = useMemo(() => {
-    if (!message.thinkingDuration) return ''
-    const seconds = message.thinkingDuration / 1000
-    if (seconds < 1) return `${Math.round(message.thinkingDuration)}ms`
-    return `${seconds.toFixed(1)}s`
-  }, [message.thinkingDuration])
-
-  // 缓存的事件处理函数
-  const toggleThinkingExpanded = useCallback(() => {
-    setIsThinkingExpanded(prev => !prev)
-  }, [])
-
-  // 获取思考状态显示文本
-  const getThinkingStatusText = () => {
-    if (message.isThinkingActive) {
-      return language === 'zh' ? 'AI正在思考...' : 'AI is thinking...'
-    }
-    if (message.isThinkingComplete && message.thinkingDuration) {
-      return language === 'zh' 
-        ? `AI思考过程 (耗时 ${formattedThinkingDuration})` 
-        : `AI Thinking Process (${formattedThinkingDuration})`
-    }
-    return language === 'zh' ? 'AI思考过程' : 'AI Thinking Process'
-  }
-
-  const handleExtractTasks = useCallback(() => {
+  const handleExtractAllTasks = useCallback(() => {
     if (message.extractedTasks && message.extractedTasks.length > 0) {
       onExtractTasks(message.extractedTasks)
     }
   }, [message.extractedTasks, onExtractTasks])
 
+  const handleExtractSingleTask = useCallback((task: TaskCard) => {
+    onExtractSingleTask(task)
+  }, [onExtractSingleTask])
+
+  // 格式化计划完成状态消息
+  const formatPlanCompletedMessage = useCallback((count: number) => {
+    return t.planCompleted.replace('{count}', count.toString())
+  }, [t.planCompleted])
+
+  // 过滤掉JSON内容的显示文本 - 修改逻辑，在流式生成过程中就隐藏JSON
+  const getDisplayContent = useCallback((content: string, isStreaming: boolean = false) => {
+    // 如果是流式生成中，检测到JSON开始标记后就截断显示
+    if (isStreaming) {
+      // 检测markdown JSON代码块开始标记
+      const jsonCodeBlockIndex = content.indexOf('```json')
+      if (jsonCodeBlockIndex !== -1) {
+        // 截取到```json之前的内容
+        return content.substring(0, jsonCodeBlockIndex).trim()
+      }
+      
+      // 检测裸露JSON数组开始标记
+      const jsonArrayIndex = content.indexOf('[')
+      if (jsonArrayIndex !== -1) {
+        // 检查是否真的是JSON数组（包含{字符）
+        const afterBracket = content.substring(jsonArrayIndex)
+        if (afterBracket.includes('{')) {
+          // 截取到[之前的内容
+          return content.substring(0, jsonArrayIndex).trim()
+        }
+      }
+      
+      // 如果没有检测到JSON标记，返回完整内容
+      return content
+    }
+    
+    // 如果不是流式生成（已完成），移除所有JSON内容
+    let cleanContent = content
+    // 移除markdown格式的JSON代码块
+    cleanContent = cleanContent.replace(/```json\s*[\s\S]*?\s*```/g, '')
+    // 移除裸露的JSON数组
+    cleanContent = cleanContent.replace(/\[\s*\{[\s\S]*?\}\s*\]/g, '')
+    // 移除多余的空行
+    cleanContent = cleanContent.replace(/\n\s*\n\s*\n/g, '\n\n')
+    return cleanContent.trim()
+  }, [])
+
   if (isUser) {
     return (
-      <div className="flex items-start space-x-2 mb-4">
-        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <User className="w-4 h-4 text-blue-600" />
+      <div className="flex items-start space-x-2 mb-4 justify-end">
+        <div className="bg-blue-500 text-white rounded-lg p-3 max-w-[80%] order-2">
+          <p>{message.content}</p>
         </div>
-        <div className="bg-blue-50 rounded-lg p-3 max-w-[80%]">
-          <p className="text-gray-800">{message.content}</p>
+        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 order-3">
+          <User className="w-4 h-4 text-blue-600" />
         </div>
       </div>
     )
   }
 
   // AI 消息显示
-  const shouldShowThinking = message.thinking || message.isThinkingActive
-  const shouldShowContent = message.content && !message.isThinkingActive
-
   return (
     <div className="flex items-start space-x-2 mb-4">
       <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
         <Bot className="w-4 h-4 text-emerald-600" />
       </div>
       <div className="flex-1 space-y-2">
-        
-        {/* 思考过程区域 */}
-        {shouldShowThinking && (
-          <div className="bg-emerald-50 rounded-lg border border-emerald-200">
-            <button
-              onClick={toggleThinkingExpanded}
-              className="w-full p-3 text-left flex items-center justify-between hover:bg-emerald-100 transition-colors"
-            >
-              <div className="flex items-center space-x-2">
-                <Brain className={`w-4 h-4 text-emerald-600 ${message.isThinkingActive ? 'animate-pulse' : ''}`} />
-                <span className="font-medium text-emerald-800">
-                  {getThinkingStatusText()}
-                </span>
-                {message.isThinkingActive && (
-                  <div className="w-4 h-4">
-                    <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
-                  </div>
-                )}
-              </div>
-              <ChevronDown className={`w-4 h-4 text-emerald-600 transition-transform ${isThinkingExpanded ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isThinkingExpanded && message.thinking && (
-              <div className="px-3 pb-3 border-t border-emerald-200 bg-emerald-25">
-                <div className="pt-2 text-sm text-emerald-700 whitespace-pre-wrap font-mono">
-                  {message.thinking}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 正式输出内容 */}
-        {shouldShowContent && (
-          <div className="bg-gray-50 rounded-lg p-3">
+        <div className="bg-gray-50 rounded-lg p-3">
+          {/* 始终显示文本内容，但在流式生成时截断JSON，完成后过滤JSON */}
+          {message.content && getDisplayContent(message.content, message.isStreaming) && (
             <div className="prose prose-sm max-w-none">
               <ReactMarkdown>
-                {message.content}
+                {getDisplayContent(message.content, message.isStreaming)}
               </ReactMarkdown>
             </div>
+          )}
 
-            {/* 任务提取按钮 */}
-            {message.extractedTasks && message.extractedTasks.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <button
-                  onClick={handleExtractTasks}
-                  className="inline-flex items-center space-x-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>
-                    {language === 'zh' 
-                      ? `添加 ${message.extractedTasks.length} 个任务` 
-                      : `Add ${message.extractedTasks.length} tasks`}
-                  </span>
-                </button>
+          {/* JSON解析状态指示器 */}
+          {(message.jsonParsingStatus === 'detecting' || message.jsonParsingStatus === 'parsing') && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="flex items-center space-x-2 text-sm text-blue-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>{t.planGenerating}</span>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* JSON处理状态 */}
-            {message.isProcessingJson && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <div className="flex items-center space-x-2 text-sm text-yellow-600">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>
-                    {language === 'zh' ? '正在解析任务...' : 'Parsing tasks...'}
-                  </span>
-                </div>
+          {message.jsonParsingStatus === 'completed' && message.taskCount && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="flex items-center space-x-2 text-sm text-green-600 mb-3">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{formatPlanCompletedMessage(message.taskCount)}</span>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* 任务卡片网格 */}
+          {message.extractedTasks && message.extractedTasks.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="grid grid-cols-1 gap-3 mb-4">
+                {message.extractedTasks.map((task) => (
+                  <TaskCardComponent
+                    key={task.id}
+                    task={task as TaskCard}
+                    onExtract={handleExtractSingleTask}
+                    language={language}
+                  />
+                ))}
+              </div>
+              
+              {/* 提取所有任务按钮 */}
+              <button
+                onClick={handleExtractAllTasks}
+                className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t.extractAllTasks}</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -502,35 +562,25 @@ function PlanningPageContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [showCopySuccess, setShowCopySuccess] = useState(false)
   const [copySuccessMessage, setCopySuccessMessage] = useState("")
+  const [isLanguageInitialized, setIsLanguageInitialized] = useState(false) // 新增：语言初始化完成标记
 
-  // 初始化语言设置 - 优先级：URL参数 > localStorage > 默认英文
-  useEffect(() => {
-    const langParam = searchParams.get('lang')
-    if (langParam) {
-      const currentLang = (langParam === "en" ? "en" : "zh") as "zh" | "en"
-      setLanguage(currentLang)
-      // 保存到 localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('preferred-language', currentLang)
-      }
-    } else {
-      // 从 localStorage 读取用户偏好，默认英文
-      if (typeof window !== 'undefined') {
-        const savedLang = localStorage.getItem('preferred-language') as "zh" | "en" | null
-        const currentLang = savedLang || "en"
-        setLanguage(currentLang)
-      }
-    }
-  }, [searchParams])
-
-  // 语言变化时保存到 localStorage
+  // 初始化语言设置 - 完全基于localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred-language', language)
+      const savedLang = localStorage.getItem('preferred-language') as "zh" | "en" | null
+      const currentLang = savedLang || "en"
+      console.log('🌍 正在初始化语言设置:', currentLang) // 添加调试日志
+      setLanguage(currentLang)
+      setIsLanguageInitialized(true) // 标记语言初始化完成
     }
-  }, [language])
+  }, [])
 
   const t = translations[language]
+
+  // 语言变化处理函数
+  const handleLanguageChange = useCallback((lang: "zh" | "en") => {
+    setLanguage(lang)
+  }, [])
 
   // 使用 useCallback 缓存所有回调函数，避免子组件不必要的重新渲染
   const extractTasks = useCallback((jsonTasks: ExtractableTask[]) => {
@@ -540,6 +590,16 @@ function PlanningPageContent() {
       source: 'ai' as const
     }))
     setTasks(prev => [...prev, ...newTasks])
+  }, [])
+
+  // 新增：提取单个任务
+  const extractSingleTask = useCallback((taskCard: TaskCard) => {
+    const newTask: Task = {
+      ...taskCard,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      source: 'ai' as const
+    }
+    setTasks(prev => [...prev, newTask])
   }, [])
 
   const handleEditTask = useCallback((editedTask: Task) => {
@@ -580,10 +640,13 @@ function PlanningPageContent() {
     setTasks(prev => [...prev, newTask])
   }, [language])
 
-  // 优化流式响应处理，实现真正的实时展示
+  // 处理流式响应
   const sendMessage = useCallback(async (message?: string) => {
     const messageText = message || inputMessage.trim()
     if (!messageText || isLoading) return
+
+    // 添加调试日志
+    console.log('🔍 发送消息时的语言设置:', language)
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -614,43 +677,34 @@ function PlanningPageContent() {
         }),
       })
 
+      console.log('📤 API请求参数 - language:', language)
+
       if (!response.ok) {
         throw new Error('API请求失败')
       }
 
-      // 处理流式响应
-      const reader = response.body?.getReader()
-      if (!reader) throw new Error('无法读取响应流')
-
-      // 立即创建AI消息并进入thinking状态
+      // 创建AI消息
       let aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: '',
         timestamp: Date.now(),
-        thinking: '',
-        isThinkingActive: true, // 立即进入thinking状态
-        isThinkingComplete: false,
+        isStreaming: true,
         hasJson: false,
-        jsonTasks: [],
-        thinkingStartTime: Date.now()
+        extractedTasks: [],
+        jsonParsingStatus: undefined,
+        taskCount: 0
       }
 
       setChatMessages(prev => [...prev, aiMessage])
 
-      // 初始化解析状态
-      let parseState: StreamParsingState = {
-        isInThinking: false,
-        thinkingBuffer: '',
-        contentBuffer: '',
-        thinkingStartTime: Date.now(),
-        hasDetectedThinkingStart: false,
-        hasDetectedThinkingEnd: false
-      }
+      // 处理流式响应
+      const reader = response.body?.getReader()
+      if (!reader) throw new Error('无法读取响应流')
 
-      // 支持的思考标签模式
-      const thinkStartPatterns = ['<think>', '<thinking>', '思考过程：']
-      const thinkEndPatterns = ['</think>', '</thinking>', '分析结果：']
+      let fullContent = ''
+      let hasDetectedJsonStart = false
+      let hasDetectedJsonEnd = false
 
       while (true) {
         const { done, value } = await reader.read()
@@ -670,127 +724,55 @@ function PlanningPageContent() {
               
               if (!content) continue
 
-              // 检查思考开始
-              let foundThinkStart = false
-              for (const pattern of thinkStartPatterns) {
-                if (content.includes(pattern) && !parseState.isInThinking) {
-                  parseState.isInThinking = true
-                  parseState.hasDetectedThinkingStart = true
-                  foundThinkStart = true
-                  
-                  // 提取思考开始后的内容
-                  const startIndex = content.indexOf(pattern) + pattern.length
-                  parseState.thinkingBuffer += content.slice(startIndex)
-                  
-                  // 立即更新思考内容
-                  setChatMessages(prev => prev.map(msg => 
-                    msg.id === aiMessage.id 
-                      ? { 
-                          ...msg, 
-                          thinking: parseState.thinkingBuffer,
-                          isThinkingActive: true
-                        }
-                      : msg
-                  ))
-                  break
-                }
+              fullContent += content
+
+              // 检测JSON开始
+              if (!hasDetectedJsonStart && (fullContent.includes('```json') || fullContent.includes('['))) {
+                hasDetectedJsonStart = true
+                setChatMessages(prev => prev.map(msg => 
+                  msg.id === aiMessage.id 
+                    ? { ...msg, jsonParsingStatus: 'detecting' }
+                    : msg
+                ))
               }
 
-              if (foundThinkStart) continue
+              // 检查JSON处理状态
+              let isProcessingJson = false
+              let extractedTasks: ExtractableTask[] = []
+              let hasJson = false
+              let jsonParsingStatus: 'detecting' | 'parsing' | 'completed' | 'error' | undefined = undefined
+              let taskCount = 0
 
-              // 检查思考结束
-              let foundThinkEnd = false
-              for (const pattern of thinkEndPatterns) {
-                if (content.includes(pattern) && parseState.isInThinking) {
-                  const endIndex = content.indexOf(pattern)
-                  parseState.thinkingBuffer += content.slice(0, endIndex)
-                  parseState.isInThinking = false
-                  parseState.hasDetectedThinkingEnd = true
-                  foundThinkEnd = true
-                  
-                  const thinkingEndTime = Date.now()
-                  const thinkingDuration = thinkingEndTime - parseState.thinkingStartTime
-                  
-                  // 更新思考完成状态
-                  setChatMessages(prev => prev.map(msg => 
-                    msg.id === aiMessage.id 
-                      ? { 
-                          ...msg, 
-                          thinking: parseState.thinkingBuffer,
-                          isThinkingActive: false,
-                          isThinkingComplete: true,
-                          thinkingEndTime,
-                          thinkingDuration
-                        }
-                      : msg
-                  ))
-                  
-                  // 思考结束后的内容作为正式输出
-                  const formalContentStart = content.slice(endIndex + pattern.length)
-                  if (formalContentStart.trim()) {
-                    parseState.contentBuffer += formalContentStart
-                    
-                    // 立即更新正式内容
-                    setChatMessages(prev => prev.map(msg => 
-                      msg.id === aiMessage.id 
-                        ? { 
-                            ...msg, 
-                            content: parseState.contentBuffer
-                          }
-                        : msg
-                    ))
+              // 方法1：检查markdown JSON代码块
+              let jsonMatch = fullContent.match(/```json\s*([\s\S]*?)\s*```/)
+              if (jsonMatch) {
+                hasJson = true
+                try {
+                  const parsedTasks = JSON.parse(jsonMatch[1].trim())
+                  if (Array.isArray(parsedTasks)) {
+                    extractedTasks = parsedTasks.map((task: any) => ({
+                      ...task,
+                      id: task.id || Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                      completed: false,
+                      source: 'ai' as const
+                    }))
+                    isProcessingJson = false
+                    jsonParsingStatus = 'completed'
+                    taskCount = extractedTasks.length
+                    hasDetectedJsonEnd = true
                   }
-                  break
+                } catch (e) {
+                  isProcessingJson = true
+                  jsonParsingStatus = 'parsing'
                 }
-              }
-
-              if (foundThinkEnd) continue
-
-              // 根据当前状态分配内容并实时更新
-              if (parseState.isInThinking) {
-                // 思考阶段：实时更新思考内容
-                parseState.thinkingBuffer += content
-                
-                // 实时更新思考内容（每次都更新）
-                setChatMessages(prev => prev.map(msg => 
-                  msg.id === aiMessage.id 
-                    ? { 
-                        ...msg, 
-                        thinking: parseState.thinkingBuffer,
-                        isThinkingActive: true
-                      }
-                    : msg
-                ))
-              } else if (!parseState.hasDetectedThinkingStart && parseState.contentBuffer === '') {
-                // 如果还没检测到思考开始，且还没有正式内容，把初始内容当作思考
-                parseState.thinkingBuffer += content
-                
-                setChatMessages(prev => prev.map(msg => 
-                  msg.id === aiMessage.id 
-                    ? { 
-                        ...msg, 
-                        thinking: parseState.thinkingBuffer,
-                        isThinkingActive: true
-                      }
-                    : msg
-                ))
-              } else {
-                // 正式输出阶段：实时更新正式内容
-                parseState.contentBuffer += content
-                
-                let displayContent = parseState.contentBuffer
-                let isProcessingJson = false
-                let extractedTasks: ExtractableTask[] = []
-                let hasJson = false
-
-                // 检查和处理JSON
-                const jsonMatch = parseState.contentBuffer.match(/```json\s*([\s\S]*?)\s*```/)
-                if (jsonMatch) {
+              } 
+              // 方法2：检查裸露的JSON数组（以 [ 开头，以 ] 结尾）
+              else {
+                const arrayMatch = fullContent.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+                if (arrayMatch) {
                   hasJson = true
-                  const jsonStr = jsonMatch[1].trim()
-                  
                   try {
-                    const parsedTasks = JSON.parse(jsonStr)
+                    const parsedTasks = JSON.parse(arrayMatch[0])
                     if (Array.isArray(parsedTasks)) {
                       extractedTasks = parsedTasks.map((task: any) => ({
                         ...task,
@@ -799,31 +781,48 @@ function PlanningPageContent() {
                         source: 'ai' as const
                       }))
                       isProcessingJson = false
+                      jsonParsingStatus = 'completed'
+                      taskCount = extractedTasks.length
+                      hasDetectedJsonEnd = true
                     }
                   } catch (e) {
-                    isProcessingJson = true
+                    // 如果包含 [ 但解析失败，说明JSON还没完整
+                    if (fullContent.includes('[') && fullContent.includes('{')) {
+                      isProcessingJson = true
+                      jsonParsingStatus = 'parsing'
+                      hasJson = true
+                    }
                   }
-                } else if (parseState.contentBuffer.includes('```json')) {
-                  isProcessingJson = true
-                  hasJson = true
                 }
-
-                // 实时更新正式内容（每次都更新）
-                setChatMessages(prev => prev.map(msg => 
-                  msg.id === aiMessage.id 
-                    ? { 
-                        ...msg, 
-                        content: displayContent,
-                        hasJson,
-                        isProcessingJson,
-                        extractedTasks,
-                        // 如果开始输出正式内容，标记思考完成
-                        isThinkingActive: false,
-                        isThinkingComplete: parseState.thinkingBuffer ? true : false
-                      }
-                    : msg
-                ))
+                // 方法3：检查是否正在生成JSON（包含开始标记但还没结束）
+                else if (hasDetectedJsonStart && !hasDetectedJsonEnd) {
+                  if (fullContent.includes('```json') || (fullContent.includes('[') && fullContent.includes('{'))) {
+                    isProcessingJson = true
+                    hasJson = true
+                    jsonParsingStatus = 'parsing'
+                  }
+                }
               }
+
+              // 如果检测到JSON开始但没有其他状态，设置为检测中
+              if (hasDetectedJsonStart && !jsonParsingStatus) {
+                jsonParsingStatus = 'detecting'
+              }
+
+              // 实时更新内容
+              setChatMessages(prev => prev.map(msg => 
+                msg.id === aiMessage.id 
+                  ? { 
+                      ...msg, 
+                      content: fullContent,
+                      hasJson,
+                      isProcessingJson,
+                      extractedTasks,
+                      jsonParsingStatus,
+                      taskCount
+                    }
+                  : msg
+              ))
 
             } catch (error) {
               console.error('解析流式数据失败:', error)
@@ -832,39 +831,39 @@ function PlanningPageContent() {
         }
       }
 
-      // 最终更新：确保所有状态正确
-      const finalContent = parseState.contentBuffer
-      const finalThinking = parseState.thinkingBuffer
-      
-      // 如果没有检测到思考结束标签，手动结束思考状态
-      if (!parseState.hasDetectedThinkingEnd && parseState.thinkingBuffer) {
-        const thinkingEndTime = Date.now()
-        const thinkingDuration = thinkingEndTime - parseState.thinkingStartTime
-        
-        setChatMessages(prev => prev.map(msg => 
-          msg.id === aiMessage.id 
-            ? { 
-                ...msg, 
-                thinking: finalThinking,
-                isThinkingActive: false,
-                isThinkingComplete: true,
-                thinkingEndTime,
-                thinkingDuration
-              }
-            : msg
-        ))
-      }
-      
-      // 最终JSON处理
-      let finalHasJson = false
+      // 最终状态更新 - 需要保留JSON解析结果
       let finalExtractedTasks: ExtractableTask[] = []
+      let finalHasJson = false
+      let finalJsonParsingStatus: 'detecting' | 'parsing' | 'completed' | 'error' | undefined = undefined
+      let finalTaskCount = 0
       
-      if (finalContent) {
-        const jsonMatch = finalContent.match(/```json\s*([\s\S]*?)\s*```/)
-        if (jsonMatch) {
+      // 再次进行最终的JSON检测
+      const finalJsonMatch = fullContent.match(/```json\s*([\s\S]*?)\s*```/)
+      if (finalJsonMatch) {
+        finalHasJson = true
+        try {
+          const parsedTasks = JSON.parse(finalJsonMatch[1].trim())
+          if (Array.isArray(parsedTasks)) {
+            finalExtractedTasks = parsedTasks.map((task: any) => ({
+              ...task,
+              id: task.id || Date.now().toString() + Math.random().toString(36).substr(2, 9),
+              completed: false,
+              source: 'ai' as const
+            }))
+            finalJsonParsingStatus = 'completed'
+            finalTaskCount = finalExtractedTasks.length
+          }
+        } catch (e) {
+          console.error('最终JSON解析失败:', e)
+          finalJsonParsingStatus = 'error'
+        }
+      } else {
+        // 检查裸露JSON
+        const finalArrayMatch = fullContent.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+        if (finalArrayMatch) {
           finalHasJson = true
           try {
-            const parsedTasks = JSON.parse(jsonMatch[1].trim())
+            const parsedTasks = JSON.parse(finalArrayMatch[0])
             if (Array.isArray(parsedTasks)) {
               finalExtractedTasks = parsedTasks.map((task: any) => ({
                 ...task,
@@ -872,25 +871,27 @@ function PlanningPageContent() {
                 completed: false,
                 source: 'ai' as const
               }))
+              finalJsonParsingStatus = 'completed'
+              finalTaskCount = finalExtractedTasks.length
             }
           } catch (e) {
-            console.error('最终JSON解析失败:', e)
+            console.error('最终裸露JSON解析失败:', e)
+            finalJsonParsingStatus = 'error'
           }
         }
       }
 
-      // 最终状态确认
       setChatMessages(prev => prev.map(msg => 
         msg.id === aiMessage.id 
           ? { 
               ...msg, 
-              content: finalContent,
-              thinking: finalThinking,
+              content: fullContent,
+              isStreaming: false,
               isProcessingJson: false,
               hasJson: finalHasJson,
               extractedTasks: finalExtractedTasks,
-              isThinkingActive: false,
-              isThinkingComplete: true
+              jsonParsingStatus: finalJsonParsingStatus,
+              taskCount: finalTaskCount
             }
           : msg
       ))
@@ -912,24 +913,25 @@ function PlanningPageContent() {
     }
   }, [inputMessage, isLoading, chatMessages, tasks, language])
 
-  // 初始化数据 - 使用 ref 来避免重复调用
+  // 初始化数据 - 使用 ref 来避免重复调用，并确保语言状态已加载
   const hasInitialized = useRef(false)
   
   useEffect(() => {
     const dataParam = searchParams.get('data')
-    if (dataParam && chatMessages.length === 0 && !hasInitialized.current) {
+    // 只有在语言初始化完成后才进行数据初始化
+    if (dataParam && chatMessages.length === 0 && !hasInitialized.current && isLanguageInitialized) {
+      console.log('📋 开始数据初始化，当前语言:', language) // 添加调试日志
       try {
         const data = JSON.parse(decodeURIComponent(dataParam))
         if (data.inputText) {
           hasInitialized.current = true
-          // 自动发送初始消息
           sendMessage(data.inputText)
         }
       } catch (error) {
         console.error('解析初始数据失败:', error)
       }
     }
-  }, [searchParams, chatMessages.length, sendMessage])
+  }, [searchParams, chatMessages.length, sendMessage, language, isLanguageInitialized])
 
   const handleCopyToMarkdownText = useCallback(async () => {
     if (tasks.length === 0) return
@@ -941,7 +943,7 @@ function PlanningPageContent() {
     }
 
     const priorityLabels = {
-      zh: { high: "�� 高优先级", medium: "🟡 中优先级", low: "🟢 低优先级" },
+      zh: { high: "🔴 高优先级", medium: "🟡 中优先级", low: "🟢 低优先级" },
       en: { high: "🔴 High Priority", medium: "🟡 Medium Priority", low: "🟢 Low Priority" }
     }
 
@@ -1075,7 +1077,7 @@ function PlanningPageContent() {
                 <h1 className="text-xl font-bold text-slate-900">{t.title}</h1>
               </div>
             </div>
-            <LanguageSwitcher currentLanguage={language} />
+            <LanguageSwitcher currentLanguage={language} onLanguageChange={handleLanguageChange} />
           </div>
         </div>
       </header>
@@ -1099,10 +1101,12 @@ function PlanningPageContent() {
                     message={message}
                     language={language}
                     onExtractTasks={extractTasks}
+                    onExtractSingleTask={extractSingleTask}
                   />
                 ))}
                 
-                {isLoading && (
+                {/* 修改 isLoading 显示逻辑：只有在没有流式消息时才显示 */}
+                {isLoading && !chatMessages.some(msg => msg.role === 'assistant' && msg.isStreaming) && (
                   <div className="flex justify-start">
                     <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 flex-shrink-0">
                       <Bot className="w-4 h-4 text-gray-600" />

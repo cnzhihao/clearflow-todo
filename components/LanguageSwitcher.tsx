@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,6 +11,7 @@ import { Globe } from "lucide-react"
 
 interface LanguageSwitcherProps {
   currentLanguage: "zh" | "en"
+  onLanguageChange?: (lang: "zh" | "en") => void
 }
 
 const translations = {
@@ -20,18 +19,19 @@ const translations = {
   en: { language: "Language" }
 }
 
-export function LanguageSwitcher({ currentLanguage }: LanguageSwitcherProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+export function LanguageSwitcher({ currentLanguage, onLanguageChange }: LanguageSwitcherProps) {
   const t = translations[currentLanguage]
 
   const setLanguage = (lang: "zh" | "en") => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("lang", lang)
+    // 保存到 localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred-language', lang)
+    }
     
-    // 获取当前路径
-    const currentPath = window.location.pathname
-    router.push(`${currentPath}?${params.toString()}`)
+    // 调用回调函数通知父组件
+    if (onLanguageChange) {
+      onLanguageChange(lang)
+    }
   }
 
   return (

@@ -21,6 +21,7 @@ const getChineseSystemPrompt = (currentDateChinese: string, currentDateStr: stri
 输出格式要求：
 1. 首先用100字以内总结今天的计划
 2. 然后输出JSON格式的任务数组
+3. 输出JSON格式时，需要使用\`\`\`json开头，\`\`\`结尾
 
 JSON格式要求：
 每个任务包含：
@@ -147,11 +148,11 @@ export async function POST(req: NextRequest) {
     }
     
     const completion = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1-0528:free",
+      model: "deepseek/deepseek-chat-v3-0324:free",
       messages,
       stream: true,
-      temperature: 0,
-      top_p: 0.5,
+      temperature: 0.7,
+      top_p: 0.9,
     });
 
     // Create a readable stream for Server-Sent Events

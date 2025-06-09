@@ -53,56 +53,35 @@ const translations = {
 }
 
 function HomePageContent() {
-  const searchParams = useSearchParams()
   const router = useRouter()
   const [language, setLanguage] = useState<"zh" | "en">("en")
   const [inputText, setInputText] = useState("")
 
-  // 初始化语言设置 - 优先级：URL参数 > localStorage > 默认英文
-  React.useEffect(() => {
-    // 检查是否需要清除 localStorage
-    const clearParam = searchParams.get('clear')
-    if (clearParam && typeof window !== 'undefined') {
-      localStorage.removeItem('preferred-language')
-    }
-    
-    const langParam = searchParams.get('lang')
-    if (langParam) {
-      const currentLang = (langParam === "en" ? "en" : "zh") as "zh" | "en"
-      setLanguage(currentLang)
-      // 保存到 localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('preferred-language', currentLang)
-      }
-    } else {
-      // 从 localStorage 读取用户偏好，默认英文
-      if (typeof window !== 'undefined') {
-        const savedLang = localStorage.getItem('preferred-language') as "zh" | "en" | null
-        const currentLang = savedLang || "en"
-        setLanguage(currentLang)
-      }
-    }
-  }, [searchParams])
-
-  // 语言变化时保存到 localStorage
+  // 初始化语言设置 - 完全基于localStorage
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred-language', language)
+      const savedLang = localStorage.getItem('preferred-language') as "zh" | "en" | null
+      const currentLang = savedLang || "en"
+      setLanguage(currentLang)
     }
-  }, [language])
+  }, [])
 
   const t = translations[language]
 
   const handleAnalyze = async () => {
     if (!inputText.trim()) return
     
-    // 直接跳转到planning页面，传递输入文本
+    // 直接跳转到planning页面，传递输入文本（移除lang参数）
     const planningData = {
       inputText,
       timestamp: Date.now()
     }
     
-    router.push(`/planning?data=${encodeURIComponent(JSON.stringify(planningData))}&lang=${language}`)
+    router.push(`/planning?data=${encodeURIComponent(JSON.stringify(planningData))}`)
+  }
+
+  const handleLanguageChange = (lang: "zh" | "en") => {
+    setLanguage(lang)
   }
 
   const handleExampleClick = (exampleText: string) => {
@@ -132,7 +111,7 @@ function HomePageContent() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <LanguageSwitcher currentLanguage={language} />
+              <LanguageSwitcher currentLanguage={language} onLanguageChange={handleLanguageChange} />
             </div>
           </div>
         </div>

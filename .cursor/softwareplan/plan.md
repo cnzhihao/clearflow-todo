@@ -1186,3 +1186,401 @@ class TaskErrorBoundary extends React.Component<
    - 创建时间: 2025/6/8 22:56:19
    - 更新时间: 2025/6/8 22:56:19
 
+## 目标: 清流待办(Clearflow To-Do) AI驱动任务管理应用的前端交互优化和功能扩展
+
+**创建时间**: 2025/6/9 22:36:31
+**最后更新**: 2025/6/9 22:37:47
+
+### 进度概览
+
+- **任务进度**: 0/20 (0%)
+- **复杂度进度**: 0/107 (0%)
+
+### 任务列表
+
+1. ⏳ **# 清流待办(Clearflow To-Do) 前端交互优化项目计划** (复杂度: 5)
+   - # 清流待办(Clearflow To-Do) 前端交互优化项目计划
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+2. ⏳ **## 项目概述** (复杂度: 5)
+   - ## 项目概述
+基于现有的AI驱动任务管理应用，实现前端交互优化和功能扩展。项目已具备完整的基础架构，包括首页、任务规划页面和工作台页面。
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+3. ⏳ **## 当前项目状态分析** (复杂度: 5)
+   - ## 当前项目状态分析
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+4. ⏳ **### 已完成的核心功能** (复杂度: 5)
+   - ### 已完成的核心功能
+1. **首页 (app/page.tsx)** - 已实现类似bolt.new的直接输入体验
+   - 支持中英文切换
+   - 大型输入框支持直接输入想法
+   - 示例文本引导用户使用
+   - 语言偏好本地存储
+   - 快捷键支持 (Cmd/Ctrl + Enter)
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+5. ⏳ ****任务规划页面 (app/planning/page.tsx)** - 功能非常完善** (复杂度: 5)
+   - - AI流式对话功能
+   - 实时任务提取和展示
+   - 任务编辑和管理
+   - 思考过程可视化
+   - 支持Markdown和表格格式导出
+   - 多语言支持
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+6. ⏳ ****工作台页面 (app/workspace/page.tsx)** - 传统任务管理界面** (复杂度: 5)
+   - - AI智能分析标签
+   - 任务管理标签
+   - 任务统计和过滤
+   - 手动添加任务功能
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+7. ⏳ ****组件库** - 完善的UI组件生态** (复杂度: 5)
+   - - 基于Shadcn UI的现代化组件
+   - 语言切换器组件
+   - AI推理显示组件
+   - 完整的主题系统
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+8. ⏳ **### 技术栈现状** (复杂度: 5)
+   - ### 技术栈现状
+- Next.js 15 (App Router)
+- React 19
+- TypeScript 5
+- Tailwind CSS 3.4
+- 完整的Radix UI组件库
+- React Hook Form + Zod验证
+- OpenAI API集成
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+9. ⏳ **## 发现的前端交互改进点** (复杂度: 5)
+   - ## 发现的前端交互改进点
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+10. ⏳ **### 用户体验优化需求** (复杂度: 5)
+   - ### 用户体验优化需求
+1. **首页到规划页面的流程** - 已经实现得很好
+2. **规划页面功能丰富** - 可能需要简化某些高级功能
+3. **工作台页面** - 界面较为传统，可考虑现代化升级
+4. **移动端适配** - 需要验证和优化
+5. **性能优化** - 大文件可能需要代码分割优化
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+11. ⏳ **### 建议的迭代方向** (复杂度: 5)
+   - ### 建议的迭代方向
+1. **工作台页面现代化改造** - 类似任务板的界面设计
+2. **移动端体验优化** - 响应式设计改进
+3. **性能优化** - 代码分割和懒加载
+4. **用户引导优化** - 新用户onboarding流程
+5. **任务管理增强** - 拖拽排序、批量操作等
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+12. ⏳ **## 下一步规划重点** (复杂度: 5)
+   - ## 下一步规划重点
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+13. ⏳ **### 高优先级** (复杂度: 5)
+   - ### 高优先级
+1. 验证当前功能的移动端表现
+2. 工作台页面UI/UX现代化
+3. 性能优化和代码质量提升
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+14. ⏳ **### 中优先级** (复杂度: 5)
+   - ### 中优先级  
+4. 任务管理功能增强
+5. 用户引导流程优化
+6. 数据持久化改进
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+15. ⏳ **### 低优先级** (复杂度: 5)
+   - ### 低优先级
+7. 高级功能扩展
+8. 第三方集成
+9. 分析和监控功能
+   - 创建时间: 2025/6/9 22:36:47
+   - 更新时间: 2025/6/9 22:36:47
+
+16. ⏳ **验证移动端适配和响应式设计** (复杂度: 6)
+   - 使用playwright浏览器工具测试各个页面在不同屏幕尺寸下的表现，特别关注：
+- 首页输入框在移动端的可用性
+- 规划页面的对话界面在移动端的交互体验  
+- 工作台页面的任务管理在小屏幕上的布局
+- 导航和语言切换在移动端的表现
+- 修复发现的响应式问题
+   - 代码示例:
+```
+// 使用playwright进行移动端测试
+await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE
+await page.goto('/');
+await page.screenshot({ path: 'mobile-homepage.png' });
+
+// 测试输入框在移动端的可用性
+const textarea = page.locator('textarea[placeholder*="例如"]');
+await textarea.fill('测试移动端输入体验');
+await textarea.screenshot({ path: 'mobile-textarea.png' });
+```
+   - 创建时间: 2025/6/9 22:36:58
+   - 更新时间: 2025/6/9 22:36:58
+
+17. ⏳ **工作台页面UI现代化改造** (复杂度: 8)
+   - 将传统的工作台页面改造为现代化的任务板界面：
+- 采用卡片式任务布局，类似planning页面的设计风格
+- 实现拖拽排序功能
+- 添加任务状态的可视化标识
+- 优化任务过滤和搜索体验
+- 统一设计语言，与首页和规划页面保持一致
+- 添加批量操作功能（批量删除、批量标记完成）
+   - 代码示例:
+```
+// 现代化任务卡片组件
+const TaskCard = ({ task, onUpdate, onDelete }) => (
+  <Card className="group hover:shadow-lg transition-all duration-200 cursor-move">
+    <CardContent className="p-4">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h3 className="font-medium text-slate-900">{task.title}</h3>
+          <p className="text-sm text-slate-600 mt-1">{task.description}</p>
+          <div className="flex items-center gap-2 mt-3">
+            <Badge variant={task.priority}>{task.priority}</Badge>
+            {task.deadline && (
+              <Badge variant="outline" className="text-xs">
+                <Clock className="w-3 h-3 mr-1" />
+                {formatDate(task.deadline)}
+              </Badge>
+            )}
+          </div>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => onUpdate(task)}>
+              编辑
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => onDelete(task.id)}
+              className="text-red-600"
+            >
+              删除
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </CardContent>
+  </Card>
+);
+```
+   - 创建时间: 2025/6/9 22:37:08
+   - 更新时间: 2025/6/9 22:37:08
+
+18. ⏳ **性能优化和代码分割** (复杂度: 7)
+   - 优化应用性能，特别是planning页面的大文件（1268行）：
+- 将planning页面拆分为多个较小的组件
+- 实现组件的懒加载和代码分割
+- 优化大型组件的重渲染性能
+- 添加React.memo和useMemo优化
+- 减少不必要的状态更新和副作用
+- 优化包体积，移除未使用的依赖
+   - 代码示例:
+```
+// 拆分planning页面组件
+// components/planning/ChatInterface.tsx
+const ChatInterface = React.memo(({ messages, onSendMessage, language }) => {
+  // 聊天界面逻辑
+});
+
+// components/planning/TaskExtractionPanel.tsx  
+const TaskExtractionPanel = React.memo(({ tasks, onTaskUpdate, language }) => {
+  // 任务面板逻辑
+});
+
+// 使用React.lazy进行代码分割
+const PlanningPage = React.lazy(() => import('./components/PlanningPage'));
+
+// 在app/planning/page.tsx中使用
+export default function PlanningPageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PlanningPage />
+    </Suspense>
+  );
+}
+```
+   - 创建时间: 2025/6/9 22:37:19
+   - 更新时间: 2025/6/9 22:37:19
+
+19. ⏳ **统一导航体验和页面跳转优化** (复杂度: 5)
+   - 优化各页面间的导航体验和用户流程：
+- 在planning页面添加"保存到工作台"的快捷操作
+- 在工作台页面添加"创建新规划"的入口
+- 统一header设计，添加面包屑导航
+- 优化页面间的数据传递和状态管理
+- 添加页面loading状态和过渡动画
+- 实现更流畅的用户操作流程
+   - 代码示例:
+```
+// 统一的Header组件
+const AppHeader = ({ currentPage, language, onLanguageChange }) => (
+  <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+    <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-6">
+          <Link href="/" className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">清流待办</h1>
+          </Link>
+          
+          {/* 面包屑导航 */}
+          <nav className="flex items-center space-x-2 text-sm text-slate-600">
+            <Link href="/" className="hover:text-slate-900">首页</Link>
+            {currentPage === 'planning' && (
+              <>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-slate-900">任务规划</span>
+              </>
+            )}
+            {currentPage === 'workspace' && (
+              <>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-slate-900">工作台</span>
+              </>
+            )}
+          </nav>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          {/* 快捷操作 */}
+          {currentPage === 'planning' && (
+            <Button variant="outline" size="sm">
+              <Save className="w-4 h-4 mr-2" />
+              保存到工作台
+            </Button>
+          )}
+          {currentPage === 'workspace' && (
+            <Button asChild size="sm">
+              <Link href="/planning">
+                <Plus className="w-4 h-4 mr-2" />
+                新建规划
+              </Link>
+            </Button>
+          )}
+          
+          <LanguageSwitcher currentLanguage={language} onChange={onLanguageChange} />
+        </div>
+      </div>
+    </div>
+  </header>
+);
+```
+   - 创建时间: 2025/6/9 22:37:31
+   - 更新时间: 2025/6/9 22:37:31
+
+20. ⏳ **数据持久化和状态管理改进** (复杂度: 6)
+   - 改进应用的数据管理和持久化：
+- 实现本地存储的任务数据持久化
+- 添加数据同步和备份功能
+- 优化useTasks hook的状态管理逻辑
+- 实现跨页面的数据共享和同步
+- 添加数据导入导出功能
+- 实现撤销/重做功能
+   - 代码示例:
+```
+// 改进的数据持久化Hook
+const useTasksWithPersistence = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [history, setHistory] = useState<Task[][]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // 从localStorage加载数据
+  useEffect(() => {
+    const savedTasks = localStorage.getItem('clearflow-tasks');
+    if (savedTasks) {
+      try {
+        const parsed = JSON.parse(savedTasks);
+        setTasks(parsed);
+        setHistory([parsed]);
+        setHistoryIndex(0);
+      } catch (error) {
+        console.error('Failed to load tasks from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // 保存数据到localStorage
+  const saveToStorage = useCallback((newTasks: Task[]) => {
+    try {
+      localStorage.setItem('clearflow-tasks', JSON.stringify(newTasks));
+      // 添加到历史记录
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newTasks);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    } catch (error) {
+      console.error('Failed to save tasks to localStorage:', error);
+    }
+  }, [history, historyIndex]);
+
+  // 撤销操作
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      const prevTasks = history[historyIndex - 1];
+      setTasks(prevTasks);
+      setHistoryIndex(historyIndex - 1);
+      localStorage.setItem('clearflow-tasks', JSON.stringify(prevTasks));
+    }
+  }, [history, historyIndex]);
+
+  // 重做操作
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const nextTasks = history[historyIndex + 1];
+      setTasks(nextTasks);
+      setHistoryIndex(historyIndex + 1);
+      localStorage.setItem('clearflow-tasks', JSON.stringify(nextTasks));
+    }
+  }, [history, historyIndex]);
+
+  return {
+    tasks,
+    addTask: (task: Task) => {
+      const newTasks = [...tasks, task];
+      setTasks(newTasks);
+      saveToStorage(newTasks);
+    },
+    updateTask: (taskId: string, updates: Partial<Task>) => {
+      const newTasks = tasks.map(t => t.id === taskId ? { ...t, ...updates } : t);
+      setTasks(newTasks);
+      saveToStorage(newTasks);
+    },
+    undo,
+    redo,
+    canUndo: historyIndex > 0,
+    canRedo: historyIndex < history.length - 1,
+  };
+};
+```
+   - 创建时间: 2025/6/9 22:37:47
+   - 更新时间: 2025/6/9 22:37:47
+
