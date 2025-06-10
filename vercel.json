@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "dev": true,
+      "feature/*": true,
+      "internal-*": false
+    }
+  },
+  "github": {
+    "autoAlias": true,
+    "autoJobCancelation": false
+  },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "regions": ["hkg1"],
+  "functions": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
+} 
