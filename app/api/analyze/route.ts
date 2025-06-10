@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
       model: "deepseek/deepseek-chat-v3-0324:free",
       messages,
       stream: true,
-      temperature: 0.7,
+      temperature: 0.5,
       top_p: 0.9,
     });
 
