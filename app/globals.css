@@ -149,4 +149,114 @@ body {
   }
 }
 
+/* 移动端优化样式 */
+@layer components {
+  /* 触摸友好的按钮 */
+  .btn-touch {
+    @apply min-h-touch min-w-touch;
+    /* 确保触摸目标至少44px */
+    touch-action: manipulation;
+    /* 优化触摸响应 */
+  }
+  
+  .btn-touch-lg {
+    @apply min-h-touch-lg min-w-touch-lg;
+    /* Android 推荐的48px触摸目标 */
+  }
+  
+  /* 移动端优化的卡片 */
+  .card-mobile {
+    @apply p-4 sm:p-6;
+    /* 移动端较小的内边距，桌面端较大 */
+  }
+  
+  /* 响应式文本大小 */
+  .text-responsive-xl {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+  
+  /* 移动端优化的间距 */
+  .spacing-mobile {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  /* 安全区域适配 */
+  .safe-area-padding {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* 移动端底部固定输入区域 */
+  .mobile-input-fixed {
+    @apply fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-border p-4 safe-area-padding;
+  }
+  
+  /* 移动端标签切换器 */
+  .mobile-tab-switcher {
+    @apply flex bg-muted rounded-lg p-1 mb-4;
+  }
+  
+  .mobile-tab-button {
+    @apply flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200;
+  }
+  
+  .mobile-tab-button-active {
+    @apply bg-background text-foreground shadow-sm;
+  }
+  
+  .mobile-tab-button-inactive {
+    @apply text-muted-foreground hover:text-foreground;
+  }
+}
+
+/* 移动端基础优化 */
+@layer base {
+  /* 防止iOS Safari缩放 */
+  @media (max-width: 768px) {
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    
+    body {
+      font-size: 16px;
+      /* 防止iOS自动缩放 */
+    }
+    
+    /* 优化触摸滚动 */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 移除触摸高亮 */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+  
+  /* 触摸设备优化 */
+  @media (hover: none) and (pointer: coarse) {
+    button, 
+    [role="button"],
+    input[type="button"],
+    input[type="submit"],
+    .clickable {
+      @apply min-h-touch min-w-touch;
+    }
+  }
+}
+
 

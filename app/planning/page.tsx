@@ -3,6 +3,8 @@
 import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { TouchFriendlyButton } from "@/components/ui/touch-friendly-button"
+import { MobileTabSwitcher } from "@/components/ui/mobile-tab-switcher"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -25,6 +27,8 @@ import {
   User,
   Bot,
   Download,
+  MessageCircle,
+  ListTodo,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
@@ -115,6 +119,9 @@ const translations = {
     extractTask: "提取",
     extractAllTasks: "提取所有任务",
     taskCard: "任务卡片",
+    // 新增移动端文案
+    chatTab: "对话",
+    tasksTab: "任务",
   },
   en: {
     title: "AI Task Planning",
@@ -152,6 +159,9 @@ const translations = {
     extractTask: "Extract",
     extractAllTasks: "Extract All Tasks",
     taskCard: "Task Card",
+    // 新增移动端文案
+    chatTab: "Chat",
+    tasksTab: "Tasks",
   },
 }
 
@@ -200,97 +210,90 @@ const TaskCard = React.memo(function TaskCard({
   }, [editedTask, onEdit])
 
   const handleCancel = useCallback(() => {
+    setEditedTask(task)
     setIsEditing(false)
-  }, [])
-
-  const handleStartEdit = useCallback(() => {
-    setIsEditing(true)
-  }, [])
+  }, [task])
 
   const handleDelete = useCallback(() => {
-    onDelete(task.id)
-  }, [task.id, onDelete])
-
-  // 缓存输入变更处理函数
-  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTask(prev => ({ ...prev, title: e.target.value }))
-  }, [])
-
-  const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEditedTask(prev => ({ ...prev, description: e.target.value }))
-  }, [])
-
-  const handlePriorityChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setEditedTask(prev => ({ ...prev, priority: e.target.value as 'high' | 'medium' | 'low' }))
-  }, [])
-
-  const handleCategoryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTask(prev => ({ ...prev, category: e.target.value }))
-  }, [])
-
-  const handleDeadlineChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTask(prev => ({ ...prev, deadline: e.target.value }))
-  }, [])
-
-  // 当 task 改变时更新 editedTask
-  useEffect(() => {
-    setEditedTask(task)
-  }, [task])
+    if (confirm(language === 'zh' ? '确定要删除这个任务吗？' : 'Are you sure you want to delete this task?')) {
+      onDelete(task.id)
+    }
+  }, [onDelete, task.id, language])
 
   if (isEditing) {
     return (
-      <Card className="border-slate-200">
-        <CardContent className="p-4 space-y-4">
-          <Input
-            value={editedTask.title}
-            onChange={handleTitleChange}
-            placeholder={t.taskTitle}
-            className="font-medium"
-          />
-          <Textarea
-            value={editedTask.description || ""}
-            onChange={handleDescriptionChange}
-            placeholder={t.taskDescription}
-            className="min-h-[80px]"
-          />
-          <div className="grid grid-cols-2 gap-4">
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">{t.editTask}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-700">{t.taskTitle}</label>
+            <Input
+              value={editedTask.title}
+              onChange={(e) => setEditedTask(prev => ({ ...prev, title: e.target.value }))}
+              className="mt-1"
+              placeholder={t.taskTitle}
+            />
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-700">{t.taskDescription}</label>
+            <Textarea
+              value={editedTask.description || ''}
+              onChange={(e) => setEditedTask(prev => ({ ...prev, description: e.target.value }))}
+              className="mt-1 min-h-[80px] resize-none"
+              placeholder={t.taskDescription}
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-600">{t.priority}</label>
+              <label className="text-sm font-medium text-slate-700">{t.priority}</label>
               <select
                 value={editedTask.priority}
-                onChange={handlePriorityChange}
-                className="w-full mt-1 p-2 border border-slate-200 rounded-md"
+                onChange={(e) => setEditedTask(prev => ({ ...prev, priority: e.target.value as 'high' | 'medium' | 'low' }))}
+                className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="high">{t.high}</option>
                 <option value="medium">{t.medium}</option>
                 <option value="low">{t.low}</option>
               </select>
             </div>
+            
             <div>
-              <label className="text-sm font-medium text-slate-600">{t.category}</label>
+              <label className="text-sm font-medium text-slate-700">{t.category}</label>
               <Input
-                value={editedTask.category || ""}
-                onChange={handleCategoryChange}
+                value={editedTask.category || ''}
+                onChange={(e) => setEditedTask(prev => ({ ...prev, category: e.target.value }))}
+                className="mt-1"
                 placeholder={t.category}
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium text-slate-700">{t.deadline}</label>
+              <Input
+                type="date"
+                value={editedTask.deadline || ''}
+                onChange={(e) => setEditedTask(prev => ({ ...prev, deadline: e.target.value }))}
                 className="mt-1"
               />
             </div>
           </div>
-          <div>
-            <label className="text-sm font-medium text-slate-600">{t.deadline}</label>
-            <Input
-              type="date"
-              value={editedTask.deadline || ""}
-              onChange={handleDeadlineChange}
-              placeholder={t.deadlinePlaceholder}
-              className="mt-1"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleSave} size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+          
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              onClick={handleSave}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
               {t.save}
             </Button>
-            <Button onClick={handleCancel} variant="outline" size="sm">
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              className="flex-1"
+            >
               {t.cancel}
             </Button>
           </div>
@@ -300,16 +303,28 @@ const TaskCard = React.memo(function TaskCard({
   }
 
   return (
-    <Card className="border-slate-200 hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="font-medium text-slate-900 flex-1">{task.title}</h3>
-          <div className="flex gap-1 ml-2">
+    <Card className="w-full group hover:shadow-md transition-all duration-200 border-slate-200 hover:border-slate-300">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-semibold text-slate-900 leading-tight break-words">
+              {task.title}
+            </CardTitle>
+            {task.description && (
+              <p className="text-slate-600 text-sm mt-2 leading-relaxed break-words whitespace-pre-wrap">
+                {task.description}
+              </p>
+            )}
+          </div>
+          
+          {/* 桌面端：右上角操作按钮 */}
+          <div className="hidden sm:flex items-center space-x-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
-              onClick={handleStartEdit}
+              onClick={() => setIsEditing(true)}
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-slate-100"
+              className="h-8 w-8 p-0"
+              title={t.editTask}
             >
               <Edit3 className="w-4 h-4" />
             </Button>
@@ -317,42 +332,71 @@ const TaskCard = React.memo(function TaskCard({
               onClick={handleDelete}
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+              title={t.deleteTask}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>
-        
-        {task.description && (
-          <p className="text-sm text-slate-600 mb-3">{task.description}</p>
-        )}
-        
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge className={PRIORITY_COLORS[task.priority]}>
-            {t[task.priority]}
+      </CardHeader>
+      
+      <CardContent className="pt-0">
+        {/* 标签区域 */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge 
+            variant="secondary" 
+            className={`${PRIORITY_COLORS_BADGE[task.priority]} flex items-center gap-1`}
+          >
+            {PRIORITY_ICONS[task.priority]}
+            <span>{t[task.priority]}</span>
           </Badge>
+          
           {task.category && (
             <Badge variant="outline" className="text-slate-600">
               {task.category}
             </Badge>
           )}
+          
           {task.deadline && (
             <Badge variant="outline" className="text-slate-600 flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              {task.deadline}
+              {new Date(task.deadline).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}
             </Badge>
           )}
-          <Badge variant="outline" className={task.source === 'ai' ? 'text-primary' : 'text-slate-600'}>
-            {task.source === 'ai' ? 'AI' : '手动'}
+          
+          <Badge variant="outline" className="text-slate-500">
+            {task.source === 'ai' ? 'AI' : (language === 'zh' ? '手动' : 'Manual')}
           </Badge>
+        </div>
+        
+        {/* 移动端：底部操作按钮 */}
+        <div className="sm:hidden flex justify-end space-x-2 pt-2 border-t border-slate-100">
+          <Button
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Edit3 className="w-4 h-4" />
+            {t.editTask}
+          </Button>
+          <Button
+            onClick={handleDelete}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 hover:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4" />
+            {t.deleteTask}
+          </Button>
         </div>
       </CardContent>
     </Card>
   )
 })
 
-// 新增：任务卡片组件
+// 新增：任务卡片组件（用于AI生成的可提取任务）
 const TaskCardComponent = React.memo(function TaskCardComponent({
   task,
   onExtract,
@@ -369,40 +413,60 @@ const TaskCardComponent = React.memo(function TaskCardComponent({
   }, [task, onExtract])
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3 hover:border-slate-300 transition-colors relative">
-      <div className="flex items-start justify-between pr-20">
-        <div className="flex-1">
-          <h4 className="font-medium text-slate-900 text-base leading-tight">{task.title}</h4>
-          {task.description && (
-            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{task.description}</p>
-          )}
+    <Card className="w-full group hover:shadow-md transition-all duration-200 border-emerald-200 hover:border-emerald-300 bg-gradient-to-br from-emerald-50/50 to-white">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base font-semibold text-slate-900 leading-tight break-words">
+              {task.title}
+            </CardTitle>
+            {task.description && (
+              <p className="text-slate-600 text-sm mt-2 leading-relaxed break-words whitespace-pre-wrap">
+                {task.description}
+              </p>
+            )}
+          </div>
+          
+          <Button
+            onClick={handleExtract}
+            size="sm"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex-shrink-0 transition-all duration-200 hover:scale-105"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            {t.extractTask}
+          </Button>
         </div>
-        <Button
-          onClick={handleExtract}
-          size="sm"
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 h-8 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium shadow-sm"
-        >
-          {t.extractTask}
-        </Button>
-      </div>
+      </CardHeader>
       
-      <div className="flex items-center gap-2 flex-wrap">
-        <Badge className={`text-xs ${PRIORITY_COLORS[task.priority]}`}>
-          {t[task.priority]}
-        </Badge>
-        {task.category && (
-          <Badge variant="outline" className="text-xs text-slate-600">
-            {task.category}
+      <CardContent className="pt-0">
+        <div className="flex flex-wrap gap-2">
+          <Badge 
+            variant="secondary" 
+            className={`${PRIORITY_COLORS_BADGE[task.priority]} flex items-center gap-1`}
+          >
+            {PRIORITY_ICONS[task.priority]}
+            <span>{t[task.priority]}</span>
           </Badge>
-        )}
-        {task.deadline && (
-          <Badge variant="outline" className="text-xs text-slate-600 flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {task.deadline}
+          
+          {task.category && (
+            <Badge variant="outline" className="text-slate-600 border-slate-300">
+              {task.category}
+            </Badge>
+          )}
+          
+          {task.deadline && (
+            <Badge variant="outline" className="text-slate-600 border-slate-300 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {new Date(task.deadline).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}
+            </Badge>
+          )}
+          
+          <Badge variant="outline" className="text-emerald-600 border-emerald-300 bg-emerald-50">
+            AI {language === 'zh' ? '生成' : 'Generated'}
           </Badge>
-        )}
-      </div>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 })
 
@@ -537,13 +601,13 @@ const ChatMessage = React.memo(function ChatMessage({
               </div>
               
               {/* 提取所有任务按钮 */}
-              <button
+              <Button
                 onClick={handleExtractAllTasks}
-                className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium h-auto min-h-[44px] px-4 py-2 touch-manipulation"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 mr-2" />
                 <span>{t.extractAllTasks}</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -563,6 +627,7 @@ function PlanningPageContent() {
   const [showCopySuccess, setShowCopySuccess] = useState(false)
   const [copySuccessMessage, setCopySuccessMessage] = useState("")
   const [isLanguageInitialized, setIsLanguageInitialized] = useState(false) // 新增：语言初始化完成标记
+  const [activeTab, setActiveTab] = useState<'chat' | 'tasks'>('chat') // 新增：移动端标签状态
 
   // 初始化语言设置 - 完全基于localStorage
   useEffect(() => {
@@ -1057,24 +1122,25 @@ function PlanningPageContent() {
   }), [])
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex flex-col overflow-hidden safe-area-padding">
+      {/* Header - 移动端优化 */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 flex-shrink-0 z-50">
-        <div className="px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+        <div className="px-4 sm:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Button
                 variant="ghost"
                 onClick={handleBackToHome}
-                className="flex items-center space-x-2 text-slate-600 hover:text-slate-900"
+                className="flex items-center space-x-1 sm:space-x-2 text-slate-600 hover:text-slate-900 p-2 h-auto min-h-[44px] touch-manipulation"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>{t.backToHome}</span>
+                <span className="hidden sm:inline">{t.backToHome}</span>
               </Button>
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <h1 className="text-xl font-bold text-slate-900">{t.title}</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900">{t.title}</h1>
               </div>
             </div>
             <LanguageSwitcher currentLanguage={language} onLanguageChange={handleLanguageChange} />
@@ -1082,148 +1148,163 @@ function PlanningPageContent() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 overflow-hidden">
-        <div className="flex gap-6 h-full w-full">
-          {/* Left Panel - Chat */}
-          <div className="flex flex-col bg-white rounded-lg border border-slate-200 shadow-sm w-2/5">
-            <div className="flex-shrink-0 p-6 border-b border-slate-200">
-              <div className="flex items-center space-x-2">
-                <Bot className="w-5 h-5 text-emerald-600" />
-                <span className="text-lg font-semibold text-slate-900">{t.chatTitle}</span>
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col min-h-0">
-              {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {chatMessages.map((message) => (
-                  <ChatMessage
-                    key={message.id}
-                    message={message}
-                    language={language}
-                    onExtractTasks={extractTasks}
-                    onExtractSingleTask={extractSingleTask}
-                  />
-                ))}
-                
-                {/* 修改 isLoading 显示逻辑：只有在没有流式消息时才显示 */}
-                {isLoading && !chatMessages.some(msg => msg.role === 'assistant' && msg.isStreaming) && (
-                  <div className="flex justify-start">
-                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 flex-shrink-0">
-                      <Bot className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div className="bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[80%]">
-                      <div className="flex items-center space-x-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{t.thinking}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Chat Input */}
-              <div className="border-t p-4 flex-shrink-0">
-                <div className="flex space-x-2">
-                  <Textarea
-                    value={inputMessage}
-                    onChange={handleInputChange}
-                    placeholder={t.chatPlaceholder}
-                    className="flex-1 min-h-[60px] resize-none"
-                    disabled={isLoading}
-                    onKeyDown={handleKeyDown}
-                  />
-                  <Button
-                    onClick={handleSendClick}
-                    disabled={!inputMessage.trim() || isLoading}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  {language === 'zh' ? '按 Cmd + Enter 发送' : 'Press Cmd + Enter to send'}
-                </div>
-              </div>
-            </div>
-          </div>
+      <main className="flex-1 p-4 sm:p-6 overflow-hidden">
+        {/* 移动端标签切换 */}
+        <div className="md:hidden mb-4">
+          <MobileTabSwitcher
+            activeTab={activeTab}
+            tabs={[
+              { id: 'chat', label: t.chatTab, icon: <MessageCircle className="w-4 h-4" /> },
+              { id: 'tasks', label: t.tasksTab, icon: <ListTodo className="w-4 h-4" /> }
+            ]}
+            onTabChange={(tab) => setActiveTab(tab as 'chat' | 'tasks')}
+          />
+        </div>
 
-          {/* Right Panel - Tasks */}
-          <div className="flex flex-col bg-white rounded-lg border border-slate-200 shadow-sm w-3/5">
-            <div className="flex-shrink-0 p-6 border-b border-slate-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  <span className="text-lg font-semibold text-slate-900">{t.tasksTitle}</span>
-                  {tasks.length > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {tasks.length}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={addManualTask}
-                    className="flex items-center space-x-1"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>{t.createManualTask}</span>
-                  </Button>
-                </div>
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6 h-full w-full">
+          {/* Chat Panel - 桌面端左侧，移动端根据标签显示 */}
+          <div className={`
+            flex flex-col bg-white rounded-lg border border-slate-200 shadow-sm 
+            ${activeTab === 'chat' ? 'flex' : 'hidden'} md:flex md:w-2/5 h-full
+          `}>
+            <div className="flex-shrink-0 p-3 sm:p-4 border-b border-slate-200">
+              <div className="flex items-center space-x-2">
+                <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                <span className="text-base sm:text-lg font-semibold text-slate-900">{t.chatTitle}</span>
               </div>
             </div>
             
-            <div className="flex-1 flex flex-col min-h-0">
-              {/* Tasks List */}
-              <div className="flex-1 overflow-y-auto p-4">
-                {tasks.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <CheckCircle2 className="w-12 h-12 text-gray-300 mb-4" />
-                    <p className="text-gray-500 mb-2">{language === 'zh' ? '暂无任务' : 'No tasks yet'}</p>
-                    <p className="text-sm text-gray-400">{t.noTasksFound}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {tasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        onEdit={handleEditTask}
-                        onDelete={deleteTask}
-                        language={language}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+            {/* Chat Messages - 可滚动区域 */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-3 min-h-0 pb-4">
+              {chatMessages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  language={language}
+                  onExtractTasks={extractTasks}
+                  onExtractSingleTask={extractSingleTask}
+                />
+              ))}
               
-              {/* Fixed Copy Buttons - Only show when there are tasks */}
-              {tasks.length > 0 && (
-                <div className="border-t p-4 flex-shrink-0">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyToMarkdownText}
-                      className={copyButtonStyle.className}
-                    >
-                      <Copy className="w-4 h-4" />
-                      <span>{t.copyTextFormat}</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyToMarkdownTable}
-                      className={copyButtonStyle.className}
-                    >
-                      <Copy className="w-4 h-4" />
-                      <span>{t.copyTableFormat}</span>
-                    </Button>
+              {/* 修改 isLoading 显示逻辑：只有在没有流式消息时才显示 */}
+              {isLoading && !chatMessages.some(msg => msg.role === 'assistant' && msg.isStreaming) && (
+                <div className="flex justify-start">
+                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 flex-shrink-0">
+                    <Bot className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div className="bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[80%]">
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{t.thinking}</span>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
+            
+            {/* Chat Input - 固定底部 */}
+            <div className="border-t p-4 flex-shrink-0 bg-white">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                <Textarea
+                  value={inputMessage}
+                  onChange={handleInputChange}
+                  placeholder={t.chatPlaceholder}
+                  className="flex-1 min-h-[60px] sm:min-h-[60px] resize-none text-sm sm:text-base"
+                  disabled={isLoading}
+                  onKeyDown={handleKeyDown}
+                />
+                <Button
+                  onClick={handleSendClick}
+                  disabled={!inputMessage.trim() || isLoading}
+                  size="sm"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 h-auto min-h-[44px] touch-manipulation flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  <span className="hidden sm:inline">{language === 'zh' ? '发送' : 'Send'}</span>
+                </Button>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                {language === 'zh' ? '按 Cmd + Enter 发送' : 'Press Cmd + Enter to send'}
+              </div>
+            </div>
+          </div>
+
+          {/* Tasks Panel - 桌面端右侧，移动端根据标签显示 */}
+          <div className={`
+            flex flex-col bg-white rounded-lg border border-slate-200 shadow-sm 
+            ${activeTab === 'tasks' ? 'flex' : 'hidden'} md:flex md:w-3/5 h-full
+          `}>
+            <div className="flex-shrink-0 p-3 sm:p-4 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                  <span className="text-base sm:text-lg font-semibold text-slate-900">{t.tasksTitle}</span>
+                  {tasks.length > 0 && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      {tasks.length}
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addManualTask}
+                  className="flex items-center space-x-1 text-sm h-8 px-2 sm:px-3 py-1 touch-manipulation"
+                >
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>{language === 'zh' ? '新建' : 'Add Task'}</span>
+                </Button>
+              </div>
+            </div>
+            
+            {/* Tasks List - 可滚动区域 */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-3 min-h-0 pb-4">
+              {tasks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <CheckCircle2 className="w-12 h-12 text-gray-300 mb-4" />
+                  <p className="text-gray-500 mb-2">{language === 'zh' ? '暂无任务' : 'No tasks yet'}</p>
+                  <p className="text-sm text-gray-400">{t.noTasksFound}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {tasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onEdit={handleEditTask}
+                      onDelete={deleteTask}
+                      language={language}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Fixed Copy Buttons - 固定底部，只在有任务时显示 */}
+            {tasks.length > 0 && (
+              <div className="border-t p-4 flex-shrink-0 bg-white">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyToMarkdownText}
+                    className="h-auto min-h-[44px] px-2 sm:px-3 py-2 touch-manipulation text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
+                  >
+                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="truncate">{t.copyTextFormat}</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyToMarkdownTable}
+                    className="h-auto min-h-[44px] px-2 sm:px-3 py-2 touch-manipulation text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
+                  >
+                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="truncate">{t.copyTableFormat}</span>
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { TouchFriendlyButton } from "@/components/ui/touch-friendly-button"
 import { Textarea } from "@/components/ui/textarea"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import {
@@ -97,35 +98,35 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-      {/* Header */}
-      <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      {/* Header - 移动端优化 */}
+      <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50 safe-area-padding">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{t.title}</h1>
+                <h1 className="text-lg sm:text-2xl font-bold text-slate-900">{t.title}</h1>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <LanguageSwitcher currentLanguage={language} onLanguageChange={handleLanguageChange} />
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-4xl space-y-8">
-          {/* Title */}
-          <div className="text-center space-y-4">
-            <h1 className="text-2.5xl md:text-5xl font-bold text-slate-900 leading-tight whitespace-nowrap">
+      {/* Main Content - 移动端优化 */}
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+        <div className="w-full max-w-4xl spacing-mobile">
+          {/* Title - 响应式文本 */}
+          <div className="text-center spacing-mobile">
+            <h1 className="text-responsive-xl font-bold text-slate-900 leading-tight">
               {t.subtitle}
             </h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-responsive-base text-slate-600 max-w-2xl mx-auto">
               {language === 'zh' 
                 ? '输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务'
                 : 'Enter any ideas, meeting notes, project plans, and AI will help extract specific todo tasks'
@@ -133,88 +134,90 @@ function HomePageContent() {
             </p>
           </div>
 
-          {/* Input Area */}
-          <div className="space-y-6">
+          {/* Input Area - 移动端优化 */}
+          <div className="spacing-mobile">
             <div className="relative">
               <Textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={t.placeholder}
-                className="min-h-[300px] text-lg leading-relaxed resize-none border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-2xl p-6 shadow-lg bg-white/80 backdrop-blur-sm"
+                className="min-h-[200px] sm:min-h-[300px] text-base sm:text-lg leading-relaxed resize-none border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg bg-white/80 backdrop-blur-sm"
               />
               
-              {/* Character count */}
-              <div className="absolute bottom-4 right-4 text-sm text-slate-400">
+              {/* Character count - 移动端优化位置 */}
+              <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 text-xs sm:text-sm text-slate-400">
                 {inputText.length} {language === 'zh' ? '字符' : 'characters'}
               </div>
             </div>
 
-            {/* Action Button */}
+            {/* Action Button - 触摸友好 */}
             <div className="flex justify-center">
-              <Button
+              <TouchFriendlyButton
                 onClick={handleAnalyze}
                 disabled={!inputText.trim()}
                 size="lg"
-                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                touchSize="large"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
               >
-                <Brain className="w-5 h-5 mr-2" />
+                <Brain className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 {t.generateTasks}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+              </TouchFriendlyButton>
             </div>
 
-            {/* Keyboard shortcut hint */}
-            <div className="text-center text-sm text-slate-500">
+            {/* Keyboard shortcut hint - 响应式 */}
+            <div className="text-center text-xs sm:text-sm text-slate-500">
               {language === 'zh' 
-                ? `按 ${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter 快速生成`
-                : `Press ${navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter to generate quickly`
+                ? `按 ${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter 快速生成`
+                : `Press ${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl'} + Enter to generate quickly`
               }
             </div>
           </div>
 
-          {/* Examples */}
-          <div className="space-y-4">
+          {/* Examples - 移动端网格优化 */}
+          <div className="spacing-mobile">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center justify-center gap-2">
-                <Lightbulb className="w-5 h-5 text-amber-500" />
+              <h3 className="text-base sm:text-lg font-semibold text-slate-700 mb-3 sm:mb-4 flex items-center justify-center gap-2">
+                <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
                 {t.examples.title}
               </h3>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-4">
+            {/* 移动端单列，平板及以上多列 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <button
                 onClick={() => handleExampleClick(t.exampleTexts.meeting)}
-                className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
+                className="card-mobile text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group btn-touch"
               >
-                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
+                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors text-sm sm:text-base">
                   📝 {t.examples.meeting}
                 </div>
-                <div className="text-sm text-slate-500 line-clamp-3">
+                <div className="text-xs sm:text-sm text-slate-500 line-clamp-3">
                   {t.exampleTexts.meeting.substring(0, 80)}...
                 </div>
               </button>
 
               <button
                 onClick={() => handleExampleClick(t.exampleTexts.project)}
-                className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
+                className="card-mobile text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group btn-touch"
               >
-                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
+                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors text-sm sm:text-base">
                   🚀 {t.examples.project}
                 </div>
-                <div className="text-sm text-slate-500 line-clamp-3">
+                <div className="text-xs sm:text-sm text-slate-500 line-clamp-3">
                   {t.exampleTexts.project.substring(0, 80)}...
                 </div>
               </button>
 
               <button
                 onClick={() => handleExampleClick(t.exampleTexts.daily)}
-                className="p-4 text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group"
+                className="card-mobile text-left bg-white/60 hover:bg-white/80 border border-slate-200 rounded-xl transition-all duration-200 hover:shadow-md group btn-touch sm:col-span-2 md:col-span-1"
               >
-                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors">
+                <div className="font-medium text-slate-700 mb-2 group-hover:text-emerald-600 transition-colors text-sm sm:text-base">
                   📅 {t.examples.daily}
                 </div>
-                <div className="text-sm text-slate-500 line-clamp-3">
+                <div className="text-xs sm:text-sm text-slate-500 line-clamp-3">
                   {t.exampleTexts.daily.substring(0, 80)}...
                 </div>
               </button>
@@ -223,16 +226,20 @@ function HomePageContent() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-slate-200/60 bg-white/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
+      {/* Footer - 移动端优化 */}
+      <footer className="border-t border-slate-200/60 bg-white/50 backdrop-blur-sm mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <div className="text-sm sm:text-base font-semibold text-slate-700">{t.title}</div>
             </div>
-            <span className="text-lg font-semibold text-slate-700">{t.title}</span>
+            <p className="text-xs sm:text-sm text-slate-500 text-center sm:text-right">
+              © 2024 Clearflow To-Do. All rights reserved.
+            </p>
           </div>
-          <p className="text-slate-500 text-sm">© 2024 Clearflow To-Do. All rights reserved.</p>
         </div>
       </footer>
     </div>
@@ -241,14 +248,9 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
-          <span className="text-slate-600">加载中...</span>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+    </div>}>
       <HomePageContent />
     </Suspense>
   )
