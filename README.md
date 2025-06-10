@@ -77,16 +77,6 @@ pnpm build
 pnpm start
 ```
 
-## ☁️ 部署
-
-本项目推荐使用 [Vercel](https://vercel.com/) 进行部署。通过 `vercel.json` 配置，项目可以实现自动化构建和部署。
-
-### Vercel 部署步骤
-
-1. **创建 Vercel 账号**: 如果您还没有 Vercel 账号，请访问 [vercel.com](https://vercel.com/) 注册。
-2. **连接 Git 仓库**: 在 Vercel 控制台连接您的 GitHub/GitLab/Bitbucket 仓库。
-3. **自动部署**: 每次向 `main` 或 `dev` 分支推送代码时，Vercel 都会自动构建并部署最新版本。
-
 ## 📁 项目结构
 
 ```
