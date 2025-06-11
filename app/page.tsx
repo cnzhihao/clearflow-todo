@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { TouchFriendlyButton } from "@/components/ui/touch-friendly-button"
 import { Textarea } from "@/components/ui/textarea"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
+import { useDynamicTitle } from "@/hooks/use-dynamic-title"
 import {
   Sparkles,
   Brain,
@@ -66,6 +67,12 @@ function HomePageContent() {
       setLanguage(currentLang)
     }
   }, [])
+
+  // 动态设置网页标题
+  useDynamicTitle(language, {
+    zh: "清流待办 - AI 驱动的智能任务管理",
+    en: "Clearflow To-Do - AI-Powered Smart Task Management"
+  })
 
   const t = translations[language]
 
