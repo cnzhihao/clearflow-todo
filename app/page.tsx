@@ -18,10 +18,11 @@ import {
 const translations = {
   zh: {
     title: "清流待办",
-    subtitle: "描述你的想法，让AI为你规划任务",
-    placeholder: "例如：今天开会讨论了新项目，需要准备方案文档，联系设计师确认UI稿，下周一前完成原型开发...\n\n或者：\n- 明天要给客户做产品演示\n- 需要准备PPT和演示数据\n- 联系技术团队确认功能状态\n- 预约会议室\n\n输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务。",
+    subtitle: "今天做什么？",
+    description: "告诉我你今天想做什么，我来帮你生成待办清单",
+    placeholder: "例如：今天要开晨会、整理项目文档、联系设计师确认UI稿、下午2点开技术评审...\n\n或者：\n- 上午完成周报\n- 准备明天的客户演示\n- 联系供应商确认交期\n- 整理这周的会议记录\n\n无论是模糊的想法还是具体的计划，我都能帮你整理成清晰的待办事项。",
     analyzing: "AI正在分析中...",
-    generateTasks: "生成任务规划",
+    generateTasks: "生成我的待办清单",
     examples: {
       title: "试试这些示例：",
       meeting: "会议记录分析",
@@ -36,10 +37,11 @@ const translations = {
   },
   en: {
     title: "Clearflow To-Do",
-    subtitle: "Describe your ideas, let AI plan your tasks",
-    placeholder: "For example: Today's meeting discussed the new project, need to prepare proposal documents, contact designers to confirm UI drafts, complete prototype development by next Monday...\n\nOr:\n- Tomorrow need to demo product to client\n- Need to prepare PPT and demo data\n- Contact tech team to confirm feature status\n- Book meeting room\n\nEnter any ideas, meeting notes, project plans, and AI will help extract specific todo tasks.",
+    subtitle: "What to do today?",
+    description: "Tell me what you want to do today, I'll help you generate a todo list",
+    placeholder: "For example: Today I need to attend morning standup, organize project docs, contact designer for UI confirmation, technical review at 2pm...\n\nOr:\n- Finish weekly report in the morning\n- Prepare demo for tomorrow's client meeting\n- Contact supplier about delivery schedule\n- Organize this week's meeting notes\n\nWhether it's vague ideas or specific plans, I can help organize them into clear todo items.",
     analyzing: "AI is analyzing...",
-    generateTasks: "Generate Task Plan",
+    generateTasks: "Generate My Todo List",
     examples: {
       title: "Try these examples:",
       meeting: "Meeting Notes Analysis",
@@ -134,10 +136,7 @@ function HomePageContent() {
               {t.subtitle}
             </h1>
             <p className="text-responsive-base text-slate-600 max-w-2xl mx-auto">
-              {language === 'zh' 
-                ? '输入任何想法、会议记录、项目计划，AI会帮你提取出具体的待办任务'
-                : 'Enter any ideas, meeting notes, project plans, and AI will help extract specific todo tasks'
-              }
+              {t.description}
             </p>
           </div>
 

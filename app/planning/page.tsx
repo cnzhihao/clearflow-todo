@@ -33,6 +33,7 @@ import {
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
+
 interface Task {
   id: string
   title: string
@@ -123,6 +124,10 @@ const translations = {
     // 新增移动端文案
     chatTab: "对话",
     tasksTab: "任务",
+    // 新增来源标签文案
+    aiGenerated: "AI生成",
+    manualCreated: "手工创建",
+    categoryPlaceholder: "请输入任务类型",
   },
   en: {
     title: "AI Task Planning",
@@ -163,6 +168,10 @@ const translations = {
     // 新增移动端文案
     chatTab: "Chat",
     tasksTab: "Tasks",
+    // 新增来源标签文案
+    aiGenerated: "AI Generated",
+    manualCreated: "Manual Created",
+    categoryPlaceholder: "Please enter task type",
   },
 }
 
@@ -188,6 +197,237 @@ const PRIORITY_ICONS = {
   default: <CheckCircle2 className="w-4 h-4" />
 } as const
 
+// 新增：可编辑日期组件
+const EditableDate = React.memo(function EditableDate({
+  value,
+  onSave,
+  className = "",
+  textClassName = "",
+  language
+}: {
+  value: string
+  onSave: (value: string) => void
+  className?: string
+  textClassName?: string
+  language: "zh" | "en"
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(value)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setEditValue(value)
+  }, [value])
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isEditing])
+
+  const handleSave = useCallback(() => {
+    if (editValue.trim() !== value) {
+      onSave(editValue.trim())
+    }
+    setIsEditing(false)
+  }, [editValue, value, onSave])
+
+  const handleCancel = useCallback(() => {
+    setEditValue(value)
+    setIsEditing(false)
+  }, [value])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSave()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancel()
+    }
+  }, [handleSave, handleCancel])
+
+  if (isEditing) {
+    return (
+      <input
+        ref={inputRef}
+        type="date"
+        value={editValue}
+        onChange={(e) => setEditValue(e.target.value)}
+        onBlur={handleSave}
+        onKeyDown={handleKeyDown}
+        className={`${className} border-0 bg-transparent p-0 focus:outline-none focus:ring-1 focus:ring-blue-500 rounded ${textClassName}`}
+      />
+    )
+  }
+
+  const displayValue = value || new Date().toISOString().split('T')[0]
+  const formattedDate = new Date(displayValue).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+
+  return (
+    <span
+      onClick={() => setIsEditing(true)}
+      className={`${className} cursor-pointer hover:bg-gray-50 rounded px-1 -mx-1 ${textClassName}`}
+      title={language === 'zh' ? "点击编辑日期" : "Click to edit date"}
+    >
+      {formattedDate}
+    </span>
+  )
+})
+
+// 新增：可编辑文本组件
+const EditableText = React.memo(function EditableText({
+  value,
+  onSave,
+  className = "",
+  placeholder = "",
+  multiline = false,
+  textClassName = ""
+}: {
+  value: string
+  onSave: (value: string) => void
+  className?: string
+  placeholder?: string
+  multiline?: boolean
+  textClassName?: string
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(value)
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      if (inputRef.current instanceof HTMLInputElement) {
+        inputRef.current.select()
+      } else {
+        inputRef.current.setSelectionRange(0, inputRef.current.value.length)
+      }
+    }
+  }, [isEditing])
+
+  const handleSave = useCallback(() => {
+    const trimmedValue = editValue.trim()
+    if (trimmedValue !== value) {
+      onSave(trimmedValue)
+    }
+    setIsEditing(false)
+  }, [editValue, value, onSave])
+
+  const handleCancel = useCallback(() => {
+    setEditValue(value)
+    setIsEditing(false)
+  }, [value])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (!multiline || e.ctrlKey || e.metaKey)) {
+      e.preventDefault()
+      handleSave()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancel()
+    }
+  }, [handleSave, handleCancel, multiline])
+
+  if (isEditing) {
+    const InputComponent = multiline ? Textarea : Input
+    return (
+      <InputComponent
+        ref={inputRef as any}
+        value={editValue}
+        onChange={(e) => setEditValue(e.target.value)}
+        onBlur={handleSave}
+        onKeyDown={handleKeyDown}
+        className={className}
+        placeholder={placeholder}
+        {...(multiline && { rows: 3 })}
+      />
+    )
+  }
+
+  return (
+    <div
+      onClick={() => setIsEditing(true)}
+      className={`cursor-pointer hover:bg-slate-50 hover:ring-1 hover:ring-slate-200 rounded px-2 py-1 transition-all ${textClassName}`}
+      title="点击编辑"
+    >
+      {value || <span className="text-slate-400">{placeholder}</span>}
+    </div>
+  )
+})
+
+// 新增：可编辑选择组件
+const EditableSelect = React.memo(function EditableSelect({
+  value,
+  options,
+  onSave,
+  className = "",
+  displayClassName = ""
+}: {
+  value: string
+  options: { value: string; label: string; className?: string }[]
+  onSave: (value: string) => void
+  className?: string
+  displayClassName?: string
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const selectRef = useRef<HTMLSelectElement>(null)
+
+  useEffect(() => {
+    if (isEditing && selectRef.current) {
+      selectRef.current.focus()
+    }
+  }, [isEditing])
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value
+    onSave(newValue)
+    setIsEditing(false)
+  }, [onSave])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      setIsEditing(false)
+    }
+  }, [])
+
+  const currentOption = options.find(opt => opt.value === value)
+
+  if (isEditing) {
+    return (
+      <select
+        ref={selectRef}
+        value={value}
+        onChange={handleChange}
+        onBlur={() => setIsEditing(false)}
+        onKeyDown={handleKeyDown}
+        className={`${className} rounded px-2 py-1 border border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500`}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    )
+  }
+
+  return (
+    <div
+      onClick={() => setIsEditing(true)}
+      className={`cursor-pointer hover:bg-slate-50 hover:ring-1 hover:ring-slate-200 rounded px-2 py-1 transition-all ${displayClassName}`}
+      title="点击编辑"
+    >
+      {currentOption?.label || value}
+    </div>
+  )
+})
+
 // 使用 React.memo 优化 TaskCard 组件
 const TaskCard = React.memo(function TaskCard({ 
   task, 
@@ -201,19 +441,6 @@ const TaskCard = React.memo(function TaskCard({
   language: "zh" | "en"
 }) {
   const t = translations[language]
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedTask, setEditedTask] = useState(task)
-
-  // 使用 useCallback 缓存事件处理函数
-  const handleSave = useCallback(() => {
-    onEdit(editedTask)
-    setIsEditing(false)
-  }, [editedTask, onEdit])
-
-  const handleCancel = useCallback(() => {
-    setEditedTask(task)
-    setIsEditing(false)
-  }, [task])
 
   const handleDelete = useCallback(() => {
     if (confirm(language === 'zh' ? '确定要删除这个任务吗？' : 'Are you sure you want to delete this task?')) {
@@ -221,114 +448,47 @@ const TaskCard = React.memo(function TaskCard({
     }
   }, [onDelete, task.id, language])
 
-  if (isEditing) {
-    return (
-      <Card className="w-full">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">{t.editTask}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-slate-700">{t.taskTitle}</label>
-            <Input
-              value={editedTask.title}
-              onChange={(e) => setEditedTask(prev => ({ ...prev, title: e.target.value }))}
-              className="mt-1"
-              placeholder={t.taskTitle}
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium text-slate-700">{t.taskDescription}</label>
-            <Textarea
-              value={editedTask.description || ''}
-              onChange={(e) => setEditedTask(prev => ({ ...prev, description: e.target.value }))}
-              className="mt-1 min-h-[80px] resize-none"
-              placeholder={t.taskDescription}
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium text-slate-700">{t.priority}</label>
-              <select
-                value={editedTask.priority}
-                onChange={(e) => setEditedTask(prev => ({ ...prev, priority: e.target.value as 'high' | 'medium' | 'low' }))}
-                className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              >
-                <option value="high">{t.high}</option>
-                <option value="medium">{t.medium}</option>
-                <option value="low">{t.low}</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-slate-700">{t.category}</label>
-              <Input
-                value={editedTask.category || ''}
-                onChange={(e) => setEditedTask(prev => ({ ...prev, category: e.target.value }))}
-                className="mt-1"
-                placeholder={t.category}
-              />
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-slate-700">{t.deadline}</label>
-              <Input
-                type="date"
-                value={editedTask.deadline || ''}
-                onChange={(e) => setEditedTask(prev => ({ ...prev, deadline: e.target.value }))}
-                className="mt-1"
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <Button
-              onClick={handleSave}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              {t.save}
-            </Button>
-            <Button
-              onClick={handleCancel}
-              variant="outline"
-              className="flex-1"
-            >
-              {t.cancel}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <Card className="w-full group hover:shadow-md transition-all duration-200 border-slate-200 hover:border-slate-300">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg font-semibold text-slate-900 leading-tight break-words">
-              {task.title}
-            </CardTitle>
-            {task.description && (
-              <p className="text-slate-600 text-sm mt-2 leading-relaxed break-words whitespace-pre-wrap">
-                {task.description}
-              </p>
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <CardTitle className="text-lg font-semibold text-slate-900 leading-tight break-words flex-1">
+                <EditableText
+                  value={task.title}
+                  onSave={(value) => onEdit({ ...task, title: value })}
+                  textClassName="font-semibold text-lg text-slate-900"
+                  placeholder={t.taskTitle}
+                />
+              </CardTitle>
+              {/* 来源标签 - 移到标题右上角 */}
+              <Badge 
+                variant="outline" 
+                className={`flex-shrink-0 text-xs ${
+                  task.source === 'ai' 
+                    ? 'text-emerald-600 border-emerald-300 bg-emerald-50' 
+                    : 'text-slate-500 border-slate-300 bg-slate-50'
+                }`}
+              >
+                {task.source === 'ai' ? t.aiGenerated : t.manualCreated}
+              </Badge>
+            </div>
+            {task.description !== undefined && (
+              <div className="text-slate-600 text-sm mt-2 leading-relaxed break-words whitespace-pre-wrap">
+                <EditableText
+                  value={task.description}
+                  onSave={(value) => onEdit({ ...task, description: value })}
+                  textClassName="text-slate-600 text-sm"
+                  placeholder={t.taskDescription}
+                  multiline={true}
+                />
+              </div>
             )}
           </div>
           
-          {/* 桌面端：右上角操作按钮 */}
+          {/* 桌面端：右上角删除按钮 */}
           <div className="hidden sm:flex items-center space-x-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              onClick={() => setIsEditing(true)}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              title={t.editTask}
-            >
-              <Edit3 className="w-4 h-4" />
-            </Button>
             <Button
               onClick={handleDelete}
               variant="ghost"
@@ -347,41 +507,43 @@ const TaskCard = React.memo(function TaskCard({
         <div className="flex flex-wrap gap-2 mb-4">
           <Badge 
             variant="secondary" 
-            className={`${PRIORITY_COLORS_BADGE[task.priority]} flex items-center gap-1`}
+            className={`${PRIORITY_COLORS_BADGE[task.priority]} flex items-center gap-1 cursor-pointer hover:opacity-80`}
           >
             {PRIORITY_ICONS[task.priority]}
-            <span>{t[task.priority]}</span>
+            <EditableSelect
+              value={task.priority}
+              options={[
+                { value: 'high', label: t.high },
+                { value: 'medium', label: t.medium },
+                { value: 'low', label: t.low },
+              ]}
+              onSave={(value) => onEdit({ ...task, priority: value as 'high' | 'medium' | 'low' })}
+              displayClassName="text-inherit"
+            />
           </Badge>
           
-          {task.category && (
-            <Badge variant="outline" className="text-slate-600">
-              {task.category}
-            </Badge>
-          )}
+          <Badge variant="outline" className="text-slate-600 cursor-pointer hover:bg-slate-50">
+            <EditableText
+              value={task.category || ''}
+              onSave={(value) => onEdit({ ...task, category: value })}
+              textClassName="text-inherit"
+              placeholder={task.source === 'manual' ? t.categoryPlaceholder : t.category}
+            />
+          </Badge>
           
-          {task.deadline && (
-            <Badge variant="outline" className="text-slate-600 flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {new Date(task.deadline).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}
-            </Badge>
-          )}
-          
-          <Badge variant="outline" className="text-slate-500">
-            {task.source === 'ai' ? 'AI' : (language === 'zh' ? '手动' : 'Manual')}
+          <Badge variant="outline" className="text-slate-600 flex items-center gap-1 cursor-pointer hover:bg-slate-50">
+            <Clock className="w-3 h-3" />
+            <EditableDate
+              value={task.deadline || new Date().toISOString().split('T')[0]}
+              onSave={(value) => onEdit({ ...task, deadline: value })}
+              textClassName="text-inherit"
+              language={language}
+            />
           </Badge>
         </div>
         
-        {/* 移动端：底部操作按钮 */}
+        {/* 移动端：底部删除按钮 */}
         <div className="sm:hidden flex justify-end space-x-2 pt-2 border-t border-slate-100">
-          <Button
-            onClick={() => setIsEditing(true)}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Edit3 className="w-4 h-4" />
-            {t.editTask}
-          </Button>
           <Button
             onClick={handleDelete}
             variant="outline"
@@ -699,13 +861,16 @@ function PlanningPageContent() {
   }, [])
 
   const addManualTask = useCallback(() => {
+    // 获取今天的日期，格式为 YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0]
+    
     const newTask: Task = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       title: language === 'zh' ? "新任务" : "New Task",
       description: "",
       priority: "medium",
-      category: language === 'zh' ? "手动" : "Manual",
-      deadline: "",
+      category: "", // 空的category，用户点击时会显示placeholder
+      deadline: today, // 设置为今天的日期
       completed: false,
       source: 'manual'
     }
