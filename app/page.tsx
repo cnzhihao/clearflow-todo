@@ -111,7 +111,7 @@ function HomePageContent() {
   React.useEffect(() => {
     if (transcript) {
       setInputText(prev => {
-        // 如果已有内容，在末尾添加空格后追加新内容
+        // 如果已有内容，追加新内容
         const separator = prev.trim() ? '' : ''
         return prev + separator + transcript
       })
