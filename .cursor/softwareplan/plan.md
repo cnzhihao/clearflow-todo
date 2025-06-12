@@ -346,3 +346,191 @@ await page.waitForSelector('[data-testid="planning-page"]');
    - 创建时间: 2025/6/10 20:17:36
    - 更新时间: 2025/6/10 20:21:39
 
+## 目标: 为clearflow-todo项目的核心输入框增加语音输入功能，实现语音转文字的功能，包括浏览器兼容性检测、权限管理、UI状态管理和错误处理
+
+**创建时间**: 2025/6/12 09:56:11
+**最后更新**: 2025/6/12 12:06:45
+
+### 进度概览
+
+- **任务进度**: 13/13 (100%)
+- **复杂度进度**: 56/56 (100%)
+
+### 任务列表
+
+1. ✅ **创建语音输入Hook组件** (复杂度: 7)
+   - 创建一个自定义React Hook (useSpeechRecognition) 来封装Web Speech API的功能，包括浏览器兼容性检测、状态管理、事件处理和错误处理。支持中英文语言切换。
+   - 代码示例:
+```
+```typescript
+interface UseSpeechRecognitionOptions {
+  language?: string;
+  continuous?: boolean;
+  interimResults?: boolean;
+}
+
+interface UseSpeechRecognitionReturn {
+  isSupported: boolean;
+  isListening: boolean;
+  transcript: string;
+  error: string | null;
+  startListening: () => void;
+  stopListening: () => void;
+}
+
+export function useSpeechRecognition(options: UseSpeechRecognitionOptions): UseSpeechRecognitionReturn
+```
+```
+   - 创建时间: 2025/6/12 09:57:29
+   - 更新时间: 2025/6/12 10:03:36
+
+2. ✅ **创建语音输入按钮组件** (复杂度: 5)
+   - 创建一个VoiceInputButton组件，包含麦克风图标和动画效果。在监听状态下显示脉冲动画，支持点击开始/停止语音识别。使用Lucide React图标库。
+   - 代码示例:
+```
+```typescript
+interface VoiceInputButtonProps {
+  isListening: boolean;
+  isSupported: boolean;
+  onToggle: () => void;
+  className?: string;
+}
+
+export function VoiceInputButton({ isListening, isSupported, onToggle, className }: VoiceInputButtonProps)
+```
+```
+   - 创建时间: 2025/6/12 09:57:37
+   - 更新时间: 2025/6/12 10:03:40
+
+3. ✅ **集成语音输入到主页面Textarea** (复杂度: 6)
+   - 将语音输入功能集成到app/page.tsx的主要Textarea组件中。在输入框右侧添加语音输入按钮，处理语音识别结果并更新inputText状态。支持中英文语言切换。
+   - 代码示例:
+```
+```typescript
+// 在Textarea容器中添加语音输入按钮
+<div className="relative">
+  <Textarea
+    value={inputText}
+    onChange={(e) => setInputText(e.target.value)}
+    // ... 其他props
+  />
+  <VoiceInputButton
+    isListening={isListening}
+    isSupported={isSupported}
+    onToggle={handleVoiceToggle}
+    className="absolute right-3 top-3"
+  />
+</div>
+```
+```
+   - 创建时间: 2025/6/12 09:57:46
+   - 更新时间: 2025/6/12 10:03:43
+
+4. ✅ **添加CSS动画和样式** (复杂度: 3)
+   - 在globals.css中添加脉冲动画效果，用于语音监听状态的视觉反馈。创建平滑的动画过渡效果，确保在移动端和桌面端都有良好的视觉体验。
+   - 代码示例:
+```
+```css
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.voice-listening {
+  animation: pulse 1.5s infinite;
+  color: #4285F4;
+}
+```
+```
+   - 创建时间: 2025/6/12 09:57:54
+   - 更新时间: 2025/6/12 10:03:46
+
+5. ✅ **添加多语言支持和错误处理** (复杂度: 4)
+   - 为语音输入功能添加中英文提示信息，包括权限请求提示、错误消息、使用说明等。在translations对象中添加相关文本，确保用户体验的一致性。
+   - 代码示例:
+```
+```typescript
+const translations = {
+  zh: {
+    // ... 现有翻译
+    voiceInput: {
+      tooltip: "点击开始语音输入",
+      listening: "正在聆听...",
+      notSupported: "您的浏览器不支持语音识别",
+      permissionDenied: "请允许使用麦克风权限",
+      networkError: "网络错误，请检查网络连接"
+    }
+  },
+  en: {
+    // ... 现有翻译
+    voiceInput: {
+      tooltip: "Click to start voice input",
+      listening: "Listening...",
+      notSupported: "Speech recognition not supported",
+      permissionDenied: "Microphone permission denied",
+      networkError: "Network error, please check connection"
+    }
+  }
+}
+```
+```
+   - 创建时间: 2025/6/12 09:58:04
+   - 更新时间: 2025/6/12 10:03:50
+
+6. ✅ **使用Playwright进行功能测试** (复杂度: 5)
+   - 使用Playwright MCP创建自动化测试，验证语音输入功能的UI交互。测试包括：按钮显示/隐藏、点击交互、动画效果、错误状态处理等。由于语音识别需要真实音频输入，主要测试UI层面的功能。
+   - 代码示例:
+```
+```typescript
+// 测试场景：
+// 1. 检查语音输入按钮是否正确显示
+// 2. 点击按钮后状态变化
+// 3. 不支持的浏览器中按钮隐藏
+// 4. 动画效果是否正确应用
+// 5. 错误提示是否正确显示
+```
+```
+   - 创建时间: 2025/6/12 09:58:13
+   - 更新时间: 2025/6/12 10:04:59
+
+7. ✅ **优化麦克风按钮位置并在planning页面添加语音输入** (复杂度: 6)
+   - 1. 将主页面的麦克风按钮从右上角移动到左下角，提升用户体验；2. 在planning页面的AI对话框中添加语音输入功能，复用现有的语音识别组件；3. 确保不写重复代码，保持代码的可维护性
+   - 创建时间: 2025/6/12 10:14:43
+   - 更新时间: 2025/6/12 10:16:05
+
+8. ✅ **修复主页面布局问题** (复杂度: 3)
+   - 1. 将语音输入按钮和字符计数div的位置互换（语音按钮到右下角，字符计数到左下角）；2. 解决textarea左边大片空白的问题（将pl-12改为pr-12）；3. 确保布局协调美观
+   - 创建时间: 2025/6/12 10:58:10
+   - 更新时间: 2025/6/12 10:58:14
+
+9. ✅ **修复Planning页面语音按钮位置偏移问题** (复杂度: 2)
+   - 解决Planning页面的语音输入按钮在被激活后向下平移的问题，将定位方式从top-1/2 -translate-y-1/2改为bottom-2 right-2的固定位置，并为textarea添加右侧padding避免文字被按钮遮挡
+   - 创建时间: 2025/6/12 11:31:17
+   - 更新时间: 2025/6/12 11:31:21
+
+10. ✅ **优化输入框布局和语音输入功能** (复杂度: 7)
+   - 1. 将主页面的字符计数和语音按钮移到输入框外部的底部控制栏中，避免悬浮元素遮挡文字；2. 修复语音输入覆盖已有内容的问题，改为追加模式；3. 使用Context7查找Web Speech API最佳实践；4. 确保两个页面的语音输入功能一致性
+   - 创建时间: 2025/6/12 11:43:41
+   - 更新时间: 2025/6/12 11:43:46
+
+11. ✅ **优化主页面输入框focus效果** (复杂度: 3)
+   - 根据Context7的Tailwind CSS最佳实践，优化输入框的focus效果：1. 将边框从border-2改为border，避免过粗边框；2. 将焦点环从ring-2改为ring-1，创建更精细的效果；3. 添加focus:outline-none确保没有默认轮廓；4. 使用focus-within在容器级别应用焦点效果，创建更优雅的用户界面
+   - 创建时间: 2025/6/12 11:53:54
+   - 更新时间: 2025/6/12 11:53:58
+
+12. ✅ **修复输入框黑色外框问题** (复杂度: 2)
+   - 移除输入框被激活时显示的黑色outline外框，通过添加outline-none类和style={{ outline: 'none' }}来强制移除浏览器默认样式
+   - 创建时间: 2025/6/12 11:58:30
+   - 更新时间: 2025/6/12 12:06:36
+
+13. ✅ **根据专家建议优化输入框focus样式** (复杂度: 3)
+   - 按照专家建议，添加focus-visible:outline-none、focus-visible:ring-0、focus-visible:ring-offset-0等样式，彻底解决父子元素focus样式冲突问题，移除内联样式，优化代码结构
+   - 创建时间: 2025/6/12 12:06:41
+   - 更新时间: 2025/6/12 12:06:45
+

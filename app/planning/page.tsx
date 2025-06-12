@@ -9,8 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { VoiceInputButton } from "@/components/ui/voice-input-button"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { useDynamicTitle } from "@/hooks/use-dynamic-title"
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   Sparkles,
@@ -792,6 +794,20 @@ function PlanningPageContent() {
   const [isLanguageInitialized, setIsLanguageInitialized] = useState(false) // 新增：语言初始化完成标记
   const [activeTab, setActiveTab] = useState<'chat' | 'tasks'>('chat') // 新增：移动端标签状态
 
+  // 语音识别相关状态
+  const {
+    isListening,
+    isSupported: voiceSupported,
+    transcript,
+    error: voiceError,
+    startListening,
+    stopListening
+  } = useSpeechRecognition({
+    language: language === 'zh' ? 'zh-CN' : 'en-US',
+    continuous: false,
+    interimResults: false
+  })
+
   // 初始化语言设置 - 完全基于localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -815,6 +831,22 @@ function PlanningPageContent() {
   const handleLanguageChange = useCallback((lang: "zh" | "en") => {
     setLanguage(lang)
   }, [])
+
+  // 语音识别处理
+  const handleVoiceToggle = useCallback(() => {
+    if (isListening) {
+      stopListening()
+    } else {
+      startListening()
+    }
+  }, [isListening, startListening, stopListening])
+
+  // 处理语音识别结果
+  useEffect(() => {
+    if (transcript) {
+      setInputMessage(prev => prev + (prev ? ' ' : '') + transcript)
+    }
+  }, [transcript])
 
   // 使用 useCallback 缓存所有回调函数，避免子组件不必要的重新渲染
   const extractTasks = useCallback((jsonTasks: ExtractableTask[]) => {
@@ -1377,14 +1409,23 @@ function PlanningPageContent() {
             {/* Chat Input - 固定底部 */}
             <div className="border-t p-2 sm:p-3 flex-shrink-0 bg-white">
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <Textarea
-                  value={inputMessage}
-                  onChange={handleInputChange}
-                  placeholder={t.chatPlaceholder}
-                  className="flex-1 min-h-[50px] sm:min-h-[60px] resize-none text-sm sm:text-base"
-                  disabled={isLoading}
-                  onKeyDown={handleKeyDown}
-                />
+                <div className="relative flex-1">
+                  <Textarea
+                    value={inputMessage}
+                    onChange={handleInputChange}
+                    placeholder={t.chatPlaceholder}
+                    className="min-h-[50px] sm:min-h-[60px] resize-none text-sm sm:text-base pr-9 sm:pr-9"
+                    disabled={isLoading}
+                    onKeyDown={handleKeyDown}
+                  />
+                  {/* Voice Input Button - 右下角固定位置 */}
+                  <VoiceInputButton
+                    isListening={isListening}
+                    isSupported={voiceSupported}
+                    onToggle={handleVoiceToggle}
+                    className="absolute bottom-3 right-5 sm:bottom-3 sm:right-5"
+                  />
+                </div>
                 <Button
                   onClick={handleSendClick}
                   disabled={!inputMessage.trim() || isLoading}
@@ -1397,6 +1438,11 @@ function PlanningPageContent() {
               </div>
               <div className="text-xs text-gray-500 mt-1 text-center sm:text-left">
                 {language === 'zh' ? '按 Cmd + Enter 发送' : 'Press Cmd + Enter to send'}
+                {voiceError && (
+                  <span className="text-red-500 ml-2">
+                    {language === 'zh' ? '语音识别错误' : 'Voice recognition error'}
+                  </span>
+                )}
               </div>
             </div>
           </div>

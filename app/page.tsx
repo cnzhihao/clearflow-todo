@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { TouchFriendlyButton } from "@/components/ui/touch-friendly-button"
 import { Textarea } from "@/components/ui/textarea"
+import { VoiceInputButton } from "@/components/ui/voice-input-button"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { useDynamicTitle } from "@/hooks/use-dynamic-title"
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import {
   Sparkles,
   Brain,
@@ -19,10 +21,20 @@ const translations = {
   zh: {
     title: "清流待办",
     subtitle: "今天做什么？",
-    description: "告诉我你今天想做什么，我来帮你生成待办清单",
-    placeholder: "例如：今天要开晨会、整理项目文档、联系设计师确认UI稿、下午2点开技术评审...\n\n或者：\n- 上午完成周报\n- 准备明天的客户演示\n- 联系供应商确认交期\n- 整理这周的会议记录\n\n无论是模糊的想法还是具体的计划，我都能帮你整理成清晰的待办事项。",
+    description: "告诉我你今天想做什么，智能AI助理帮你生成待办清单",
+    placeholder: "例如：今天要开晨会、整理项目文档、联系设计师确认UI稿、下午2点开技术评审...\n\n或者：\n- 上午完成周报\n- 准备明天的客户演示\n- 联系供应商确认交期\n- 整理这周的会议记录\n\n无论是模糊的想法还是具体的计划，我都能帮你整理成清晰的待办事项。\n\n💡 提示：点击右下角的麦克风图标可以使用语音输入！",
     analyzing: "AI正在分析中...",
     generateTasks: "生成我的待办清单",
+    voiceInput: {
+      tooltip: "点击开始语音输入",
+      listening: "正在聆听...",
+      notSupported: "您的浏览器不支持语音识别",
+      permissionDenied: "请允许使用麦克风权限",
+      networkError: "网络错误，请检查网络连接",
+      noSpeech: "未检测到语音，请重试",
+      audioCapture: "音频捕获失败",
+      error: "语音识别出错"
+    },
     examples: {
       title: "试试这些示例：",
       meeting: "会议记录分析",
@@ -39,9 +51,19 @@ const translations = {
     title: "Clearflow To-Do",
     subtitle: "What to do today?",
     description: "Tell me what you want to do today, I'll help you generate a todo list",
-    placeholder: "For example: Today I need to attend morning standup, organize project docs, contact designer for UI confirmation, technical review at 2pm...\n\nOr:\n- Finish weekly report in the morning\n- Prepare demo for tomorrow's client meeting\n- Contact supplier about delivery schedule\n- Organize this week's meeting notes\n\nWhether it's vague ideas or specific plans, I can help organize them into clear todo items.",
+    placeholder: "For example: Today I need to attend morning standup, organize project docs, contact designer for UI confirmation, technical review at 2pm...\n\nOr:\n- Finish weekly report in the morning\n- Prepare demo for tomorrow's client meeting\n- Contact supplier about delivery schedule\n- Organize this week's meeting notes\n\nWhether it's vague ideas or specific plans, I can help organize them into clear todo items.\n\n💡 Tip: Click the microphone icon in the bottom right to use voice input!",
     analyzing: "AI is analyzing...",
     generateTasks: "Generate My Todo List",
+    voiceInput: {
+      tooltip: "Click to start voice input",
+      listening: "Listening...",
+      notSupported: "Speech recognition not supported in your browser",
+      permissionDenied: "Microphone permission denied",
+      networkError: "Network error, please check connection",
+      noSpeech: "No speech detected, please try again",
+      audioCapture: "Audio capture failed",
+      error: "Speech recognition error"
+    },
     examples: {
       title: "Try these examples:",
       meeting: "Meeting Notes Analysis",
@@ -61,6 +83,21 @@ function HomePageContent() {
   const [language, setLanguage] = useState<"zh" | "en">("en")
   const [inputText, setInputText] = useState("")
 
+  // 语音识别功能
+  const {
+    isSupported: voiceSupported,
+    isListening,
+    transcript,
+    error: voiceError,
+    startListening,
+    stopListening,
+    resetTranscript
+  } = useSpeechRecognition({
+    language: language === 'zh' ? 'zh-CN' : 'en-US',
+    continuous: false,
+    interimResults: false
+  })
+
   // 初始化语言设置 - 完全基于localStorage
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -69,6 +106,18 @@ function HomePageContent() {
       setLanguage(currentLang)
     }
   }, [])
+
+  // 处理语音识别结果 - 追加而不是替换
+  React.useEffect(() => {
+    if (transcript) {
+      setInputText(prev => {
+        // 如果已有内容，在末尾添加空格后追加新内容
+        const separator = prev.trim() ? '' : ''
+        return prev + separator + transcript
+      })
+      resetTranscript()
+    }
+  }, [transcript, resetTranscript])
 
   // 动态设置网页标题
   useDynamicTitle(language, {
@@ -102,6 +151,29 @@ function HomePageContent() {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
       handleAnalyze()
+    }
+  }
+
+  const handleVoiceToggle = () => {
+    if (isListening) {
+      stopListening()
+    } else {
+      startListening()
+    }
+  }
+
+  // 获取本地化的错误消息
+  const getLocalizedErrorMessage = (error: string) => {
+    if (error.includes('not-allowed') || error.includes('permission denied')) {
+      return t.voiceInput.permissionDenied
+    } else if (error.includes('no-speech')) {
+      return t.voiceInput.noSpeech
+    } else if (error.includes('network')) {
+      return t.voiceInput.networkError
+    } else if (error.includes('audio-capture')) {
+      return t.voiceInput.audioCapture
+    } else {
+      return t.voiceInput.error
     }
   }
 
@@ -142,20 +214,51 @@ function HomePageContent() {
 
           {/* Input Area - 移动端优化 */}
           <div className="spacing-mobile">
-            <div className="relative">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/20">
               <Textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={t.placeholder}
-                className="min-h-[200px] sm:min-h-[300px] text-base sm:text-lg leading-relaxed resize-none border-2 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg bg-white/80 backdrop-blur-sm"
+                className="min-h-[200px] sm:min-h-[300px] text-base sm:text-lg leading-relaxed resize-none border-0 bg-transparent p-4 sm:p-6 rounded-xl sm:rounded-2xl focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               
-              {/* Character count - 移动端优化位置 */}
-              <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 text-xs sm:text-sm text-slate-400">
-                {inputText.length} {language === 'zh' ? '字符' : 'characters'}
+              {/* Bottom controls bar */}
+              <div className="flex items-center justify-between p-3 sm:p-4 border-t border-slate-100">
+                {/* Character count */}
+                <div className="text-xs sm:text-sm text-slate-400">
+                  {inputText.length} {language === 'zh' ? '字符' : 'characters'}
+                </div>
+                
+                {/* Voice Input Button */}
+                <VoiceInputButton
+                  isListening={isListening}
+                  isSupported={voiceSupported}
+                  onToggle={handleVoiceToggle}
+                  className=""
+                />
               </div>
             </div>
+
+            {/* Voice Input Status and Error Messages */}
+            {isListening && (
+              <div className="flex items-center justify-center gap-2 text-sm text-emerald-600 mt-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                {t.voiceInput.listening}
+              </div>
+            )}
+            
+            {voiceError && (
+              <div className="text-sm text-red-500 mt-2 text-center">
+                {getLocalizedErrorMessage(voiceError)}
+              </div>
+            )}
+            
+            {!voiceSupported && (
+              <div className="text-sm text-amber-600 mt-2 text-center">
+                {t.voiceInput.notSupported}
+              </div>
+            )}
 
             {/* Action Button - 触摸友好 */}
             <div className="flex justify-center">

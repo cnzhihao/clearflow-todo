@@ -219,6 +219,29 @@ body {
   }
 }
 
+/* 语音输入动画样式 */
+@layer components {
+  @keyframes voice-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.1);
+    }
+  }
+  
+  .voice-listening {
+    animation: voice-pulse 1.5s infinite;
+    color: hsl(var(--primary));
+  }
+  
+  .voice-listening:hover {
+    animation-play-state: paused;
+  }
+}
+
 /* 移动端基础优化 */
 @layer base {
   /* 防止iOS Safari缩放 */
